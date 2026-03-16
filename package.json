@@ -1,0 +1,27 @@
+{
+  "name": "moodle-mcp",
+  "version": "0.2.0",
+  "description": "Contexto completo de Moodle para Copilot — plugins, DB, logs, WS, RabbitMQ e infraestructura",
+  "type": "module",
+  "author": "Mr Jacket / Felix Manrique",
+  "license": "GNU GPL v3",
+  "keywords": ["moodle", "mcp", "copilot", "context", "plugins", "mariadb"],
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^5.0.0",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "dotenv": "^16.4.0",
+    "fast-xml-parser": "^4.3.0",
+    "mysql2": "^3.9.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}

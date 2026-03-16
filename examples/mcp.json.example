@@ -1,0 +1,20 @@
+{
+    "servers": {
+        "moodle41": {
+            "type": "stdio",
+            "command": "node",
+            "args": ["C:/Users/felix.manrique/Documents/tests-personal/moodle-mcp/dist/server.js"],
+            "env": {
+                "MOODLE_INSTANCE": "moodle41"
+            }
+    },
+        "moodle45": {
+            "type": "stdio",
+            "command": "node",
+            "args": ["C:/Users/felix.manrique/Documents/tests-personal/moodle-mcp/dist/server.js"],
+            "env": {
+                "MOODLE_INSTANCE": "moodle45"
+        }
+        }
+    }
+}
