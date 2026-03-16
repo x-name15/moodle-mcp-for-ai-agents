@@ -10,6 +10,7 @@ import { registerLogTools } from './tools/moodlelog.js'
 import { registerConfigTools } from './tools/config.js'
 import { registerUserTools } from './tools/users.js'
 import { registerPrompts } from './prompts/templates.js'
+import { registerIntegrationTools } from './tools/integration.js'
 
 async function main() {
     const instances = discoverInstances()
@@ -55,6 +56,7 @@ async function main() {
     await registerConfigTools(server, config)
     await registerUserTools(server, config)
     await registerPrompts(server, config)
+    await registerIntegrationTools(server, config)
 
     const transport = new StdioServerTransport()
     await server.connect(transport)
