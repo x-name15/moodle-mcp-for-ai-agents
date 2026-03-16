@@ -76,7 +76,7 @@ node dist/server.js
 - `new_plugin`
 - `integrate_plugins`
 
-## Seguridad (resumen)
+## Seguridad 
 
 - No subas archivos `.env.*` al repositorio.
 - Las consultas SQL usan prepared statements.
