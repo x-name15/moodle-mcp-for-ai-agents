@@ -11,6 +11,7 @@ import { registerConfigTools } from './tools/config.js'
 import { registerUserTools } from './tools/users.js'
 import { registerPrompts } from './prompts/templates.js'
 import { registerIntegrationTools } from './tools/integration.js'
+import { registerChangelogTools } from './tools/changelog.js'
 
 async function main() {
     const instances = discoverInstances()
@@ -57,6 +58,7 @@ async function main() {
     await registerUserTools(server, config)
     await registerPrompts(server, config)
     await registerIntegrationTools(server, config)
+    await registerChangelogTools(server, config)
 
     const transport = new StdioServerTransport()
     await server.connect(transport)

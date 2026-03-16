@@ -4,7 +4,7 @@ Inventario actual de tools registradas en el servidor MCP (`src/tools`).
 
 ## Resumen
 
-- Total de tools: **28**
+- Total de tools: **32**
 - Módulos fuente:
   - `src/tools/plugins.ts`
   - `src/tools/db.ts`
@@ -14,6 +14,7 @@ Inventario actual de tools registradas en el servidor MCP (`src/tools`).
   - `src/tools/moodlelog.ts`
   - `src/tools/infra.ts`
   - `src/tools/integration.ts`
+  - `src/tools/changelog.ts`
 
 ## Plugins y código (`src/tools/plugins.ts`)
 
@@ -82,6 +83,31 @@ Inventario actual de tools registradas en el servidor MCP (`src/tools`).
 |---|---|
 | `suggest_hook_integration` | Sugiere cómo integrar dos plugins usando hooks y eventos de Moodle. Analiza qué eventos dispara A que B podría escuchar, y viceversa. |
 | `generate_plugin_scaffold` | Genera la estructura completa de archivos para un plugin nuevo de Moodle listo para desarrollar. |
+
+## Historial y cambios (`src/tools/changelog.ts`)
+
+| Tool | Descripción |
+|---|---|
+| `get_plugin_history` | Historial completo de un plugin: upgrade.php, CHANGELOG.md y CHANGES.md combinados |
+| `get_db_upgrade_steps` | Qué cambios exactos de BD hizo un plugin en upgrade.php, filtrable por versión de origen |
+| `get_breaking_changes` | Detecta breaking changes en el historial de un plugin y qué plugins dependientes están en riesgo |
+| `scan_all_upgrade_histories` | Escanea todos los plugins con upgrade.php y devuelve un ranking de riesgo por breaking changes |
+
+---
+
+## Prompts de slash (`src/prompts/templates.ts`)
+
+| Prompt | Parámetros | Descripción |
+|---|---|---|
+| `moodle_capabilities` | — | Lista completa de tools disponibles en esta instancia |
+| `moodle_status` | — | Diagnóstico completo del estado del Moodle antes de tocar algo |
+| `understand_plugin` | `pluginName` | Analiza en profundidad un plugin desconocido |
+| `debug_error` | `errorDescription` | Investiga un error o problema en producción |
+| `new_plugin` | `pluginType`, `pluginPurpose` | Contexto completo para desarrollar un plugin nuevo desde cero |
+| `integrate_plugins` | `pluginA`, `pluginB`, `integrationGoal` | Planifica la integración entre dos plugins existentes |
+| `webservice_context` | `pluginName`, `wsAction` | Crea o modifica un Web Service con contexto real del sitio |
+
+---
 
 ## Nota de mantenimiento
 
