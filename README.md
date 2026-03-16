@@ -1,4 +1,9 @@
-# moodle-mcp-for-copilot
+# Moodle MCP Server para Github Copilot
+[![Node.js Version](https://img.shields.io/badge/node-20+-brightgreen?style=flat-square)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.2-blue?style=flat-square)](https://www.typescriptlang.org/)
+[![Moodle](https://img.shields.io/badge/Moodle-4.1%20|%204.5-orange?style=flat-square)](https://moodle.org/)
+[![GitHub Copilot](https://img.shields.io/badge/GitHub%20Copilot-integrated-red?style=flat-square)](https://github.com/features/copilot)
+[![MCP Server](https://img.shields.io/badge/MCP-Server-purple?style=flat-square)](https://modelcontextprotocol.org/)
 
 Servidor MCP (Model Context Protocol) que conecta GitHub Copilot con una o varias instancias de Moodle, dándole acceso directo a la base de datos, el filesystem de plugins, los logs, los web services, RabbitMQ y la infraestructura de microservicios.
 
