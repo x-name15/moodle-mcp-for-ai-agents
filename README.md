@@ -15,6 +15,7 @@ Servidor MCP (Model Context Protocol) para conectar diferentes IAs con instancia
 - Catálogo completo de herramientas MCP: [docs/tools.md](docs/tools/tools.md)
 - Guía de instalación para Gemini CLI: [docs/gemini/GEMINI.md](docs/gemini/GEMINI.md)
 - Guía de instalación para Claude Code: [docs/claude/CLAUDE.md](docs/claude/CLAUDE.md)
+- Guía de instalación para JetBrains (PhpStorm/IntelliJ): [docs/jetbrains/JETBRAINS.md](docs/jetbrains/JETBRAINS.md)
 
 ## Requisitos
 
@@ -104,6 +105,14 @@ node dist/server.js
 - Windows: `./scripts/claude/setup-claude.ps1`
 - Linux/Mac: `bash scripts/claude/setup-claude.sh`
 - El script registra automáticamente cada `.env.*` encontrado.
+
+### JetBrains (PhpStorm / IntelliJ / WebStorm)
+
+- Soporte nativo a través de **AI Assistant** (2024.3+) o plugins como **Continue**.
+- Guía detallada: [docs/jetbrains/JETBRAINS.md](docs/jetbrains/JETBRAINS.md)
+- Script de configuración: 
+  - Windows: `./scripts/jetbrains/setup-jetbrains.ps1`
+  - Linux/Mac: `bash scripts/jetbrains/setup-jetbrains.sh`
 
 ## Mantenimiento de conexión MCP
 
