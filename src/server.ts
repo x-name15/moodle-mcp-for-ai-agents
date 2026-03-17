@@ -12,6 +12,7 @@ import { registerUserTools } from './tools/users.js'
 import { registerPrompts } from './prompts/templates.js'
 import { registerIntegrationTools } from './tools/integration.js'
 import { registerChangelogTools } from './tools/changelog.js'
+import { registerMaintenanceTools } from './tools/maintenance.js'
 
 async function main() {
     const instances = discoverInstances()
@@ -46,7 +47,7 @@ async function main() {
 
     const server = new McpServer({
         name: 'moodle-mcp',
-        version: '0.1.0',
+        version: '0.2.0',
     })
 
     await registerPluginTools(server, config)
@@ -59,11 +60,12 @@ async function main() {
     await registerPrompts(server, config)
     await registerIntegrationTools(server, config)
     await registerChangelogTools(server, config)
+    await registerMaintenanceTools(server, config)
 
     const transport = new StdioServerTransport()
     await server.connect(transport)
 
-    console.error('[MCP] Listo. Escuchando llamadas de Copilot...')
+    console.error('[MCP] Listo. Escuchando llamadas de Gemini, Copilot y otros clientes MCP...')
 
   // Mantener el proceso vivo — MCP necesita que el proceso no termine
     await new Promise<void>((resolve) => {

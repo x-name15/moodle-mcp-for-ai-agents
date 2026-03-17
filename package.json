@@ -1,11 +1,11 @@
 {
   "name": "moodle-mcp",
   "version": "0.2.0",
-  "description": "Contexto completo de Moodle para Copilot — plugins, DB, logs, WS, RabbitMQ e infraestructura",
+  "description": "Contexto completo de Moodle para Gemini y Copilot — plugins, DB, logs, WS, RabbitMQ e infraestructura",
   "type": "module",
   "author": "Mr Jacket / Felix Manrique",
   "license": "GNU GPL v3",
-  "keywords": ["moodle", "mcp", "copilot", "context", "plugins", "mariadb"],
+  "keywords": ["moodle", "mcp", "gemini", "copilot", "context", "plugins", "mariadb"],
   "scripts": {
     "dev": "tsx src/server.ts",
     "build": "tsc",
