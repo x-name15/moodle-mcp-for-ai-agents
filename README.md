@@ -8,7 +8,7 @@
 [![Claude Code](https://img.shields.io/badge/Claude-Code-000000?style=flat-square&logo=anthropic&logoColor=white)](https://www.anthropic.com/)
 [![GitHub Copilot](https://img.shields.io/badge/GitHub%20Copilot-AI-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/features/copilot)
 
-Servidor MCP (Model Context Protocol) para conectar GitHub Copilot con instancias de Moodle y exponer contexto real de plugins, base de datos, logs, web services, RabbitMQ e infraestructura.
+Servidor MCP (Model Context Protocol) para conectar diferentes IAs con instancias de Moodle y exponer contexto real de plugins, base de datos, logs, web services, RabbitMQ e infraestructura.
 
 ## Documentación
 
@@ -30,7 +30,20 @@ npm install
 npm run build
 ```
 
-## Configuración rápida
+## Configuración rápida (EXPERIMENTAL)
+
+Puedes añadir una nueva instancia de Moodle interactivamente:
+
+- Windows: `./scripts/add-instance/add-instance.ps1`
+- Linux/Mac: `bash scripts/add-instance/add-instance.sh`
+
+Este script configurará automáticamente el archivo `.env.<instancia>`, creará el template de microservicios y registrará la instancia en:
+- **Gemini CLI**
+- **Claude Code**
+- **VS Code / GitHub Copilot** (actualiza `.vscode/mcp.json`)
+- **Raíz del proyecto** (`mcp.json`)
+
+### Configuración manual
 
 1. Crea un archivo `.env.<instancia>` en la raíz del proyecto (ejemplo: `.env.moodle41`).
 2. Define al menos estas variables:
