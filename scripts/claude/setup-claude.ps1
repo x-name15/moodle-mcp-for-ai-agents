@@ -1,45 +1,45 @@
 # Moodle MCP - Setup Script for Claude Code
 # ---------------------------------------------
-# Registra automáticamente las instancias de Moodle en Claude Code.
+# Automatically registers Moodle instances in Claude Code.
 
-Write-Host "`n[Moodle MCP] Configurando para Claude Code..." -ForegroundColor Cyan
+Write-Host "`n[Moodle MCP] Configuring for Claude Code..." -ForegroundColor Cyan
 
-# 1. Obtener ruta absoluta del proyecto
+# 1. Get absolute project path
 $ProjectRoot = Get-Item "." | Select-Object -ExpandProperty FullName
 $ServerPath = Join-Path $ProjectRoot "dist\server.js"
 
 if (-not (Test-Path $ServerPath)) {
-    Write-Host "[!] Error: No se encontró 'dist\server.js'. Por favor ejecuta 'npm run build' primero." -ForegroundColor Red
+    Write-Host "[!] Error: 'dist\server.js' not found. Please run 'npm run build' first." -ForegroundColor Red
     exit 1
 }
 
-# 2. Detectar instancias .env.*
+# 2. Detect .env.* instances
 $Instances = Get-ChildItem -Path "." -Filter ".env.*" | Where-Object { $_.Name -ne ".env.example" }
 
 if ($Instances.Count -eq 0) {
-    Write-Host "[!] Error: No se encontraron archivos .env.moodleX." -ForegroundColor Red
+    Write-Host "[!] Error: No .env.moodleX files found." -ForegroundColor Red
     exit 1
 }
 
-Write-Host "[i] Encontradas $($Instances.Count) instancias de Moodle."
+Write-Host "[i] Found $($Instances.Count) Moodle instances."
 
-# 3. Registrar cada instancia en Claude Code
+# 3. Register each instance in Claude Code
 foreach ($InstanceFile in $Instances) {
     $InstanceName = $InstanceFile.Name.Replace(".env.", "")
     
-    Write-Host "[+] Registrando mcp:$InstanceName en Claude..." -NoNewline
+    Write-Host "[+] Registering mcp:$InstanceName in Claude..." -NoNewline
     
-    # Intentar usar el comando nativo 'claude mcp add'
-    # Nota: Claude Code suele usar el archivo ~/.claude.json para global
-    # o .mcp.json para local. El comando CLI es lo más seguro.
+    # Try using the native 'claude mcp add' command
+    # Note: Claude Code usually uses the ~/.claude.json file for global
+    # or .mcp.json for local. The CLI command is the safest way.
     & claude mcp add $InstanceName node "`"$ServerPath`"" --env "MOODLE_INSTANCE=$InstanceName" 2>&1 | Out-Null
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host " [OK]" -ForegroundColor Green
     } else {
-        Write-Host " [FALLÓ]" -ForegroundColor Red
-        Write-Host "    (Asegúrate de tener instalado claude-code)" -ForegroundColor Gray
+        Write-Host " [FAILED]" -ForegroundColor Red
+        Write-Host "    (Make sure you have claude-code installed)" -ForegroundColor Gray
     }
 }
 
-Write-Host "`n[✓] ¡Configuración completada! Ahora puedes usar las tools en Claude Code.`n" -ForegroundColor Cyan
+Write-Host "`n[✓] Configuration completed! You can now use the tools in Claude Code.`n" -ForegroundColor Cyan

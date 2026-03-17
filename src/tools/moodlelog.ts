@@ -15,15 +15,15 @@ export async function registerLogTools(server: McpServer, config: MoodleConfig) 
     connectionLimit: 3,
   })
 
-  // Tool 1: Errores recientes del log de Moodle
+  // Tool 1: Recent errors from Moodle log
   server.tool(
     'get_moodle_errors',
-    'Muestra los errores y eventos críticos recientes del log de Moodle',
+    'Shows recent critical errors and events from the Moodle log',
     {
       hours: z.number().min(1).max(168).default(24)
-        .describe('Cuántas horas hacia atrás buscar, máximo 168 (7 días)'),
+        .describe('How many hours back to search, maximum 168 (7 days)'),
       limit: z.number().min(1).max(50).default(20)
-        .describe('Máximo de errores a devolver'),
+        .describe('Maximum number of errors to return'),
     },
     async ({ hours, limit }) => {
       try {
@@ -57,27 +57,27 @@ export async function registerLogTools(server: McpServer, config: MoodleConfig) 
             type: 'text',
             text: JSON.stringify({
               moodle: config.MOODLE_NAME,
-              period: `últimas ${hours} horas`,
+              period: `last \${hours} hours`,
               errors: rows,
               total: (rows as any[]).length,
             }, null, 2),
           }],
         }
       } catch (err: any) {
-        return { content: [{ type: 'text', text: `Error: ${err.message}` }] }
+        return { content: [{ type: 'text', text: `Error: \${err.message}` }] }
       }
     }
   )
 
-  // Tool 2: Actividad reciente general
+  // Tool 2: General recent activity
   server.tool(
     'get_recent_activity',
-    'Muestra la actividad reciente en Moodle: logins, accesos, eventos importantes',
+    'Shows recent activity in Moodle: logins, accesses, important events',
     {
       hours: z.number().min(1).max(48).default(1)
-        .describe('Cuántas horas hacia atrás'),
+        .describe('How many hours back'),
       limit: z.number().min(1).max(50).default(20)
-        .describe('Máximo de eventos'),
+        .describe('Maximum number of events'),
     },
     async ({ hours, limit }) => {
       try {
@@ -103,24 +103,24 @@ export async function registerLogTools(server: McpServer, config: MoodleConfig) 
             type: 'text',
             text: JSON.stringify({
               moodle: config.MOODLE_NAME,
-              period: `últimas ${hours} horas`,
+              period: `last \${hours} hours`,
               events: rows,
             }, null, 2),
           }],
         }
       } catch (err: any) {
-        return { content: [{ type: 'text', text: `Error: ${err.message}` }] }
+        return { content: [{ type: 'text', text: `Error: \${err.message}` }] }
       }
     }
   )
 
-  // Tool 3: Leer archivo de log PHP si existe
+  // Tool 3: Read PHP log file if it exists
   server.tool(
     'get_php_error_log',
-    'Lee las últimas líneas del log de errores de PHP del servidor Moodle',
+    'Reads the last lines of the PHP error log from the Moodle server',
     {
       lines: z.number().min(10).max(100).default(30)
-        .describe('Cuántas líneas del final del log leer'),
+        .describe('How many lines from the end of the log to read'),
     },
     async ({ lines }) => {
       const possiblePaths = [
@@ -132,7 +132,7 @@ export async function registerLogTools(server: McpServer, config: MoodleConfig) 
       for (const logPath of possiblePaths) {
         if (fs.existsSync(logPath)) {
           const content = fs.readFileSync(logPath, 'utf-8')
-          const allLines = content.split('\n').filter(Boolean)
+          const allLines = content.split('\\n').filter(Boolean)
           const lastLines = allLines.slice(-lines)
           return {
             content: [{
@@ -149,7 +149,7 @@ export async function registerLogTools(server: McpServer, config: MoodleConfig) 
       return {
         content: [{
           type: 'text',
-          text: 'No se encontró archivo de log PHP en rutas conocidas. Los errores están en el log de Moodle (usa get_moodle_errors).',
+          text: 'Could not find PHP log file in known paths. Errors are in the Moodle log (use get_moodle_errors).',
         }],
       }
     }

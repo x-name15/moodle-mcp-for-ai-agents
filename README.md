@@ -1,4 +1,4 @@
-# Moodle MCP Server para IAs
+# Moodle MCP Server for AIs
 
 [![Node.js Version](https://img.shields.io/badge/node-20+-brightgreen?style=flat-square)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2-blue?style=flat-square)](https://www.typescriptlang.org/)
@@ -8,51 +8,51 @@
 [![Claude Code](https://img.shields.io/badge/Claude-Code-000000?style=flat-square&logo=anthropic&logoColor=white)](https://www.anthropic.com/)
 [![GitHub Copilot](https://img.shields.io/badge/GitHub%20Copilot-AI-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/features/copilot)
 
-Servidor MCP (Model Context Protocol) para conectar diferentes IAs con instancias de Moodle y exponer contexto real de plugins, base de datos, logs, web services, RabbitMQ e infraestructura.
+MCP (Model Context Protocol) server to connect different AIs with Moodle instances and expose real context of plugins, database, logs, web services, RabbitMQ and infrastructure.
 
-## Documentación
+## Documentation
 
-- Catálogo completo de herramientas MCP: [docs/tools.md](docs/tools/tools.md)
-- Guía de instalación para Gemini CLI: [docs/gemini/GEMINI.md](docs/gemini/GEMINI.md)
-- Guía de instalación para Claude Code: [docs/claude/CLAUDE.md](docs/claude/CLAUDE.md)
-- Guía de instalación para JetBrains (PhpStorm/IntelliJ): [docs/jetbrains/JETBRAINS.md](docs/jetbrains/JETBRAINS.md)
+- Complete MCP tools catalog: [docs/tools.md](docs/tools/tools.md)
+- Installation guide for Gemini CLI: [docs/gemini/GEMINI.md](docs/gemini/GEMINI.md)
+- Installation guide for Claude Code: [docs/claude/CLAUDE.md](docs/claude/CLAUDE.md)
+- Installation guide for JetBrains (PhpStorm/IntelliJ): [docs/jetbrains/JETBRAINS.md](docs/jetbrains/JETBRAINS.md)
 
-## Requisitos
+## Requirements
 
 - Node.js 20+
-- Acceso a la base de datos MariaDB/MySQL de Moodle
-- Acceso al filesystem de Moodle (para análisis de plugins/config)
-- RabbitMQ Management API opcional (si usarás herramientas de RabbitMQ)
+- Access to the Moodle MariaDB/MySQL database
+- Access to the Moodle filesystem (for plugin/config analysis)
+- RabbitMQ Management API optional (if using RabbitMQ tools)
 
-## Instalación
+## Installation
 
 ```bash
 npm install
 npm run build
 ```
 
-## Configuración rápida (EXPERIMENTAL)
+## Quick setup (EXPERIMENTAL)
 
-Puedes añadir una nueva instancia de Moodle interactivamente:
+You can playfully add a new Moodle instance interactively:
 
 - Windows: `./scripts/add-instance/add-instance.ps1`
 - Linux/Mac: `bash scripts/add-instance/add-instance.sh`
 
-Este script configurará automáticamente el archivo `.env.<instancia>`, creará el template de microservicios y registrará la instancia en:
+This script will automatically configure the `.env.<instance>` file, create the microservices template, and register the instance in:
 - **Gemini CLI**
 - **Claude Code**
-- **VS Code / GitHub Copilot** (actualiza `.vscode/mcp.json`)
-- **Raíz del proyecto** (`mcp.json`)
+- **VS Code / GitHub Copilot** (updates `.vscode/mcp.json`)
+- **Project Root** (`mcp.json`)
 
-### Configuración manual
+### Manual configuration
 
-1. Crea un archivo `.env.<instancia>` en la raíz del proyecto (ejemplo: `.env.moodle41`).
-2. Define al menos estas variables:
+1. Create a `.env.<instance>` file in the project root (e.g. `.env.moodle41`).
+2. Define at least these variables:
 
 ```dotenv
 MOODLE_NAME="Moodle 4.1"
 MOODLE_VERSION="4.1"
-MOODLE_ROOT_PATH="/ruta/a/moodle"
+MOODLE_ROOT_PATH="/path/to/moodle"
 MOODLE_URL="http://localhost:8080"
 
 DB_HOST="localhost"
@@ -69,60 +69,60 @@ RABBITMQ_PASSWORD="guest"
 MICROSERVICES_CONFIG="./data/microservices.moodle41.json"
 ```
 
-3. En VS Code, configura `.vscode/mcp.json` y define `MOODLE_INSTANCE` con el mismo sufijo del `.env.<instancia>`.
+3. In VS Code, configure `.vscode/mcp.json` and define `MOODLE_INSTANCE` with the same suffix of the `.env.<instance>`.
 
-## Uso
+## Usage
 
-- Desarrollo interactivo:
+- Interactive development:
 
 ```bash
 npm run dev
 ```
 
-- Producción (MCP por `stdio`):
+- Production (MCP via `stdio`):
 
 ```bash
 npm run build
 node dist/server.js
 ```
 
-## Clientes soportados
+## Supported Clients
 
 ### GitHub Copilot for VS Code
 
-- Configura el servidor MCP en el workspace con `mcp.json`.
-- Puedes usar como base [examples/mcp.json.example](examples/mcp.json.example).
-- Define `MOODLE_INSTANCE` con la instancia que quieras usar (`moodle41`, `moodle45`, etc.).
+- Configure the MCP server in the workspace with `mcp.json`.
+- You can use [examples/mcp.json.example](examples/mcp.json.example) as a base.
+- Define `MOODLE_INSTANCE` with the instance you want to use (`moodle41`, `moodle45`, etc.).
 
 ### Gemini CLI
 
 - Windows: `./scripts/gemini/setup-gemini.ps1`
 - Linux/Mac: `bash scripts/gemini/setup-gemini.sh`
-- El script registra automáticamente cada `.env.*` encontrado.
+- The script automatically registers each `.env.*` found.
 
 ### Claude Code
 
 - Windows: `./scripts/claude/setup-claude.ps1`
 - Linux/Mac: `bash scripts/claude/setup-claude.sh`
-- El script registra automáticamente cada `.env.*` encontrado.
+- The script automatically registers each `.env.*` found.
 
 ### JetBrains (PhpStorm / IntelliJ / WebStorm)
 
-- Soporte nativo a través de **AI Assistant** (2024.3+) o plugins como **Continue**.
-- Guía detallada: [docs/jetbrains/JETBRAINS.md](docs/jetbrains/JETBRAINS.md)
-- Script de configuración: 
+- Native support through **AI Assistant** (2024.3+) or plugins like **Continue**.
+- Detailed guide: [docs/jetbrains/JETBRAINS.md](docs/jetbrains/JETBRAINS.md)
+- Configuration script: 
   - Windows: `./scripts/jetbrains/setup-jetbrains.ps1`
   - Linux/Mac: `bash scripts/jetbrains/setup-jetbrains.sh`
 
-## Mantenimiento de conexión MCP
+## MCP connection maintenance
 
-Si agregas tools nuevas o cambias configuración por instancia:
+If you add new tools or change configuration per instance:
 
-1. Reconstruye el servidor: `npm run build`
-2. Vuelve a ejecutar el setup del cliente que uses (Gemini/Claude)
-3. Reinicia la sesión del cliente MCP para recargar tools
+1. Rebuild the server: `npm run build`
+2. Re-run the client setup script you use (Gemini/Claude)
+3. Restart the MCP client session to reload tools
 
-## Prompts MCP incluidos
+## Included MCP Prompts
 
 - `moodle_capabilities`
 - `moodle_status`
@@ -131,7 +131,7 @@ Si agregas tools nuevas o cambias configuración por instancia:
 - `new_plugin`
 - `integrate_plugins`
 
-## Seguridad 
+## Security
 
-- Las consultas SQL usan prepared statements.
-- `get_moodle_config` enmascara `dbpass` en la salida.
+- SQL queries use prepared statements.
+- `get_moodle_config` masks `dbpass` in the output.

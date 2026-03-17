@@ -8,58 +8,58 @@ export async function registerPrompts(server: McpServer, config: MoodleConfig) {
   server.registerPrompt(
     'moodle_capabilities',
     {
-      description: 'Lista todo lo que el MCP puede hacer en esta instancia',
+      description: 'Lists everything the MCP can do in this instance',
     },
     () => ({
       messages: [{
         role: 'user',
         content: {
           type: 'text',
-          text: `Eres un asistente experto en Moodle conectado a "${config.MOODLE_NAME}" (v${config.MOODLE_VERSION}).
+          text: `You are an expert Moodle assistant connected to "${config.MOODLE_NAME}" (v${config.MOODLE_VERSION}).
 
-Tienes 26 tools MCP disponibles:
+You have 26 MCP tools available:
 
-## Plugins y código
-- list_plugins — todos los plugins con tipo, versión, dependencias
-- get_plugin_detail — detalle completo: tablas, hooks, observers, WS
-- get_plugin_dependencies — árbol completo de dependencias
-- find_plugins_by_table — qué plugins tocan una tabla
-- find_plugins_by_hook — qué plugins implementan un hook
-- get_hook_usage — en qué archivos PHP aparece un hook
-- get_plugin_api — funciones públicas, externallib, classes/external
-- find_integration_points — puntos de integración entre dos plugins
-- refresh_plugin_cache — re-escanea todo el filesystem
-- invalidate_plugin_cache — re-escanea solo un plugin
+## Plugins and code
+- list_plugins — all plugins with type, version, dependencies
+- get_plugin_detail — full details: tables, hooks, observers, WS
+- get_plugin_dependencies — complete dependency tree
+- find_plugins_by_table — which plugins interact with a table
+- find_plugins_by_hook — which plugins implement a hook
+- get_hook_usage — in which PHP files a hook appears
+- get_plugin_api — public functions, externallib, classes/external
+- find_integration_points — integration points between two plugins
+- refresh_plugin_cache — re-scans the entire filesystem
+- invalidate_plugin_cache — re-scans only a specific plugin
 
-## Base de datos
-- list_db_tables — todas las tablas con tamaño y filas
-- describe_table — columnas, tipos e índices
-- count_plugin_records — registros reales de un plugin
-- find_column — en qué tablas existe una columna
-- sample_table — filas reales (máx 10)
-- db_overview — resumen general
+## Database
+- list_db_tables — all tables with size and row counts
+- describe_table — columns, types, and indexes
+- count_plugin_records — actual records of a plugin
+- find_column — in which tables a column exists
+- sample_table — actual rows (max 10)
+- db_overview — general overview
 
-## Configuración
-- get_moodle_config — lee config.php completo
+## Configuration
+- get_moodle_config — reads the complete config.php
 
 ## Web services
-- list_webservices — servicios y tokens activos
-- get_service_functions — funciones de un servicio
+- list_webservices — active services and tokens
+- get_service_functions — functions of a service
 
-## Usuarios y roles
-- get_users_overview — totales, por rol, admins, logins
-- find_user — busca usuario con roles y cursos
+## Users and roles
+- get_users_overview — totals, per role, admins, logins
+- find_user — finds user with roles and courses
 
-## Logs y errores
-- get_moodle_errors — errores recientes por horas
-- get_recent_activity — actividad reciente
-- get_php_error_log — últimas líneas del log PHP
+## Logs and errors
+- get_moodle_errors — recent errors grouped by hours
+- get_recent_activity — recent activity
+- get_php_error_log — last lines of the PHP log
 
-## Infraestructura
-- get_infra_context — RabbitMQ, microservicios, URLs
-- get_rabbitmq_status — queues, mensajes, consumers en vivo
+## Infrastructure
+- get_infra_context — RabbitMQ, microservices, URLs
+- get_rabbitmq_status — live queues, messages, consumers
 
-Instancia: ${config.MOODLE_NAME} | DB: ${config.DB_HOST}:${config.DB_PORT}/${config.DB_NAME} | ${config.MOODLE_URL}`,
+Instance: \${config.MOODLE_NAME} | DB: \${config.DB_HOST}:\${config.DB_PORT}/\${config.DB_NAME} | \${config.MOODLE_URL}`,
         },
       }],
     })
@@ -69,32 +69,32 @@ Instancia: ${config.MOODLE_NAME} | DB: ${config.DB_HOST}:${config.DB_PORT}/${con
   server.registerPrompt(
     'moodle_status',
     {
-      description: 'Diagnóstico completo del estado de este Moodle antes de tocar algo',
+      description: 'Complete diagnostic of the current state of this Moodle before modifying anything',
     },
     () => ({
       messages: [{
         role: 'user',
         content: {
           type: 'text',
-          text: `Necesito un diagnóstico completo de "${config.MOODLE_NAME}" antes de empezar a trabajar.
+          text: `I need a complete diagnostic of "${config.MOODLE_NAME}" before I start working.
 
-Ejecuta estos tools en orden y dame un resumen estructurado:
+Run these tools in order and provide a structured summary:
 
-1. get_moodle_config — configuración actual del sitio
-2. db_overview — estado de la base de datos
-3. get_users_overview — resumen de usuarios activos
-4. list_webservices — servicios y tokens activos
-5. get_moodle_errors (hours=24) — errores de las últimas 24 horas
-6. get_rabbitmq_status — estado de las queues
-7. get_infra_context — infraestructura y microservicios
+1. get_moodle_config — current site configuration
+2. db_overview — database state
+3. get_users_overview — summary of active users
+4. list_webservices — active services and tokens
+5. get_moodle_errors (hours=24) — errors from the last 24 hours
+6. get_rabbitmq_status — queue states
+7. get_infra_context — infrastructure and microservices
 
-Al terminar quiero saber:
-- ¿Hay errores críticos activos?
-- ¿Hay tokens de WS activos y quién los usa?
-- ¿RabbitMQ tiene mensajes acumulados sin procesar?
-- ¿La configuración del sitio es la esperada?
+When finished, I want to know:
+- Are there any active critical errors?
+- Are there active WS tokens and who is using them?
+- Does RabbitMQ have accumulated unprocessed messages?
+- Is the site configuration as expected?
 
-Instancia: ${config.MOODLE_NAME} v${config.MOODLE_VERSION}`,
+Instance: \${config.MOODLE_NAME} v\${config.MOODLE_VERSION}`,
         },
       }],
     })
@@ -104,9 +104,9 @@ Instancia: ${config.MOODLE_NAME} v${config.MOODLE_VERSION}`,
   server.registerPrompt(
     'understand_plugin',
     {
-      description: 'Analiza en profundidad un plugin que no conoces',
+      description: 'In-depth analysis of a plugin you are unfamiliar with',
       argsSchema: {
-        pluginName: z.string().describe('Nombre del plugin, ej: local_messagebroker'),
+        pluginName: z.string().describe('Plugin name, ex: local_messagebroker'),
       },
     },
     ({ pluginName }) => ({
@@ -114,24 +114,24 @@ Instancia: ${config.MOODLE_NAME} v${config.MOODLE_VERSION}`,
         role: 'user',
         content: {
           type: 'text',
-          text: `Necesito entender completamente el plugin "${pluginName}" en "${config.MOODLE_NAME}".
+          text: `I need to fully understand the plugin "\${pluginName}" in "${config.MOODLE_NAME}".
 
-Ejecuta estos tools en orden:
+Run these tools in order:
 
-1. get_plugin_detail con "${pluginName}"
-2. get_plugin_dependencies con "${pluginName}"
-3. count_plugin_records con "${pluginName}"
-4. get_plugin_api con "${pluginName}"
-5. Si tiene tablas, describe_table en la tabla principal
-6. Si tiene observers, find_plugins_by_hook con el evento principal
+1. get_plugin_detail with "\${pluginName}"
+2. get_plugin_dependencies with "\${pluginName}"
+3. count_plugin_records with "\${pluginName}"
+4. get_plugin_api with "\${pluginName}"
+5. If it maps to any tables, describe_table on the main table
+6. If it has observers, find_plugins_by_hook with the main event
 
-Con esa información explícame:
-- Para qué sirve este plugin
-- Qué tablas usa y qué datos guarda
-- De qué otros plugins depende y por qué
-- Qué plugins dependen de él (riesgo si lo modifico)
-- Qué funciones expone para que otros lo consuman
-- Cómo está integrado en el ecosistema de este Moodle`,
+With that information, explain:
+- What this plugin is for
+- What tables it uses and what data it stores
+- Extent of dependencies on other plugins and why
+- Which plugins depend on it (risk if modified)
+- Exposed functions for others to consume
+- How it integrates into the ecosystem of this Moodle`,
         },
       }],
     })
@@ -141,9 +141,9 @@ Con esa información explícame:
   server.registerPrompt(
     'debug_error',
     {
-      description: 'Investiga un error o problema en producción',
+      description: 'Investigate an error or issue in production',
       argsSchema: {
-        errorDescription: z.string().describe('Describe el error, ej: usuarios no pueden autenticarse'),
+        errorDescription: z.string().describe('Describe the error, ex: users cannot authenticate'),
       },
     },
     ({ errorDescription }) => ({
@@ -151,24 +151,24 @@ Con esa información explícame:
         role: 'user',
         content: {
           type: 'text',
-          text: `Hay un problema en "${config.MOODLE_NAME}": ${errorDescription}
+          text: `There is an issue in "${config.MOODLE_NAME}": \${errorDescription}
 
-Investiga ejecutando:
+Investigate by running:
 
 1. get_moodle_errors (hours=24)
 2. get_recent_activity (hours=2)
 3. get_php_error_log (lines=50)
-4. get_rabbitmq_status — si hay queues bloqueadas
-5. Si el error menciona un plugin: get_plugin_detail y count_plugin_records
-6. Si el error menciona una tabla: describe_table y sample_table
+4. get_rabbitmq_status — if there are blocked queues
+5. If the error mentions a plugin: get_plugin_detail and count_plugin_records
+6. If the error mentions a table: describe_table and sample_table
 
-Con esa información:
-- Identifica la causa más probable
-- Señala en qué plugin o tabla está el problema
-- Sugiere pasos concretos para resolverlo
-- Indica si hay riesgo de afectar otros plugins
+With that information:
+- Identify the most likely cause
+- Point out which plugin or table contains the issue
+- Suggest concrete steps to resolve it
+- Indicate if there is a risk of affecting other plugins
 
-Moodle: ${config.MOODLE_NAME} v${config.MOODLE_VERSION}`,
+Moodle: \${config.MOODLE_NAME} v\${config.MOODLE_VERSION}`,
         },
       }],
     })
@@ -178,10 +178,10 @@ Moodle: ${config.MOODLE_NAME} v${config.MOODLE_VERSION}`,
   server.registerPrompt(
     'new_plugin',
     {
-      description: 'Contexto completo para desarrollar un plugin nuevo desde cero',
+      description: 'Full context to develop a new plugin from scratch',
       argsSchema: {
-        pluginType: z.string().describe('Tipo de plugin, ej: local, mod, block, auth'),
-        pluginPurpose: z.string().describe('Para qué sirve, ej: gestionar notificaciones push'),
+        pluginType: z.string().describe('Plugin type, ex: local, mod, block, auth'),
+        pluginPurpose: z.string().describe('What it is for, ex: manage push notifications'),
       },
     },
     ({ pluginType, pluginPurpose }) => ({
@@ -189,27 +189,27 @@ Moodle: ${config.MOODLE_NAME} v${config.MOODLE_VERSION}`,
         role: 'user',
         content: {
           type: 'text',
-          text: `Voy a desarrollar un nuevo plugin de tipo "${pluginType}" en "${config.MOODLE_NAME}" v${config.MOODLE_VERSION}.
+          text: `I am going to develop a new plugin of type "\${pluginType}" in "${config.MOODLE_NAME}" v${config.MOODLE_VERSION}.
 
-Propósito: ${pluginPurpose}
+Purpose: \${pluginPurpose}
 
-Recopila contexto:
+Gather context:
 
-1. list_plugins — plugins de tipo "${pluginType}" existentes para ver convenciones
-2. get_moodle_config — versión exacta y configuración del sitio
-3. Si necesita interactuar con usuarios o cursos: describe_table "user" y "course"
-4. find_plugins_by_hook con hooks comunes de plugins tipo "${pluginType}"
+1. list_plugins — existing "\${pluginType}" plugins to see conventions
+2. get_moodle_config — exact site version and configuration
+3. If it needs to interact with users or courses: describe_table "user" and "course"
+4. find_plugins_by_hook with common hooks for "\${pluginType}" plugins
 
-Dame:
-- Estructura de carpetas y archivos mínimos para Moodle ${config.MOODLE_VERSION}
-- version.php con requires correcto para esta instancia
-- db/install.xml si necesita tablas
-- db/services.php y clase external si necesita WS
-- db/observers.php si debe reaccionar a eventos
-- Convenciones de naming de otros plugins "${pluginType}" de este Moodle
-- Qué plugins existentes podría necesitar como dependencia
+Provide me with:
+- Minimal file and folder structure for Moodle \${config.MOODLE_VERSION}
+- version.php with correct requires for this instance
+- db/install.xml if it needs tables
+- db/services.php and external class if it needs WS
+- db/observers.php if it must react to events
+- Naming conventions of other "\${pluginType}" plugins in this Moodle
+- Which existing plugins might be needed as a dependency
 
-Path de plugins: ${config.MOODLE_ROOT_PATH}/${pluginType}/`,
+Plugins path: \${config.MOODLE_ROOT_PATH}/\${pluginType}/`,
         },
       }],
     })
@@ -219,11 +219,11 @@ Path de plugins: ${config.MOODLE_ROOT_PATH}/${pluginType}/`,
   server.registerPrompt(
     'integrate_plugins',
     {
-      description: 'Planifica la integración entre dos plugins existentes',
+      description: 'Plan the integration between two existing plugins',
       argsSchema: {
-        pluginA: z.string().describe('Plugin que inicia o consume, ej: local_messagebroker'),
-        pluginB: z.string().describe('Plugin que provee o recibe, ej: mod_assign'),
-        integrationGoal: z.string().describe('Qué quieres lograr, ej: notificar cuando se entrega una tarea'),
+        pluginA: z.string().describe('Plugin that initiates or consumes, ex: local_messagebroker'),
+        pluginB: z.string().describe('Plugin that provides or receives, ex: mod_assign'),
+        integrationGoal: z.string().describe('What you want to achieve, ex: notify when an assignment is submitted'),
       },
     },
     ({ pluginA, pluginB, integrationGoal }) => ({
@@ -231,28 +231,28 @@ Path de plugins: ${config.MOODLE_ROOT_PATH}/${pluginType}/`,
         role: 'user',
         content: {
           type: 'text',
-          text: `Necesito integrar "${pluginA}" con "${pluginB}" en "${config.MOODLE_NAME}".
+          text: `I need to integrate "\${pluginA}" with "\${pluginB}" in "${config.MOODLE_NAME}".
 
-Objetivo: ${integrationGoal}
+Goal: \${integrationGoal}
 
-Ejecuta:
+Run:
 
-1. find_integration_points pluginA="${pluginA}" pluginB="${pluginB}"
-2. get_plugin_api con "${pluginA}"
-3. get_plugin_api con "${pluginB}"
-4. get_plugin_detail con "${pluginA}"
-5. get_plugin_detail con "${pluginB}"
-6. get_plugin_dependencies con "${pluginA}"
+1. find_integration_points pluginA="\${pluginA}" pluginB="\${pluginB}"
+2. get_plugin_api with "\${pluginA}"
+3. get_plugin_api with "\${pluginB}"
+4. get_plugin_detail with "\${pluginA}"
+5. get_plugin_detail with "\${pluginB}"
+6. get_plugin_dependencies with "\${pluginA}"
 
-Genera un plan de integración:
-- Mecanismo recomendado (observer, llamada directa a WS, dependencia + API)
-- Cambios necesarios en version.php de ${pluginA}
-- Código del observer o llamada de integración
-- Cambios en DB si se necesitan
-- Riesgos si modifico estos plugins
-- Tests mínimos para verificar la integración
+Generate an integration plan:
+- Recommended mechanism (observer, direct WS call, dependency + API)
+- Necessary changes in version.php for \${pluginA}
+- Code for the observer or integration call
+- DB changes if needed
+- Risks if I modify these plugins
+- Minimal tests to verify the integration
 
-Moodle: ${config.MOODLE_NAME} v${config.MOODLE_VERSION}`,
+Moodle: \${config.MOODLE_NAME} v\${config.MOODLE_VERSION}`,
         },
       }],
     })
@@ -262,10 +262,10 @@ Moodle: ${config.MOODLE_NAME} v${config.MOODLE_VERSION}`,
   server.registerPrompt(
     'webservice_context',
     {
-      description: 'Contexto completo para crear o modificar un Web Service',
+      description: 'Complete context to create or modify a Web Service',
       argsSchema: {
-        pluginName: z.string().describe('Plugin donde vive el WS, ej: local_myapi'),
-        wsAction: z.string().describe('Qué debe hacer el WS, ej: devolver progreso de usuario en curso'),
+        pluginName: z.string().describe('Plugin where the WS lives, ex: local_myapi'),
+        wsAction: z.string().describe('What the WS should do, ex: return user progress in a course'),
       },
     },
     ({ pluginName, wsAction }) => ({
@@ -273,28 +273,28 @@ Moodle: ${config.MOODLE_NAME} v${config.MOODLE_VERSION}`,
         role: 'user',
         content: {
           type: 'text',
-          text: `Necesito crear o modificar un Web Service en "${pluginName}" de "${config.MOODLE_NAME}".
+          text: `I need to create or modify a Web Service in "\${pluginName}" for "${config.MOODLE_NAME}".
 
-Acción: ${wsAction}
+Action: \${wsAction}
 
-Recopila contexto:
+Gather context:
 
-1. get_plugin_detail con "${pluginName}"
-2. get_plugin_api con "${pluginName}" — WS existentes para no duplicar
-3. list_webservices — servicios y tokens activos
-4. Si necesita datos de usuarios o cursos: describe_table "user", "course", "user_enrolments"
+1. get_plugin_detail with "\${pluginName}"
+2. get_plugin_api with "\${pluginName}" — existing WS to prevent duplication
+3. list_webservices — active services and tokens
+4. If it needs user or course data: describe_table "user", "course", "user_enrolments"
 
-Dame:
-- Si el WS ya existe: cómo modificarlo sin romper consumers actuales
-- Si es nuevo:
-  - Clase PHP completa con execute(), execute_parameters(), execute_returns()
-  - Entrada en db/services.php
-  - Capabilities en db/access.php
-  - Cómo registrarlo en el servicio externo correcto
-- Cómo probarlo: ${config.MOODLE_URL}/webservice/rest/server.php
-- Tokens activos que podrían usarlo
+Provide me with:
+- If the WS already exists: how to modify it without breaking current consumers
+- If it is new:
+  - Complete PHP class with execute(), execute_parameters(), execute_returns()
+  - Entry in db/services.php
+  - Capabilities in db/access.php
+  - How to register it into the correct external service
+- How to test it: \${config.MOODLE_URL}/webservice/rest/server.php
+- Active tokens that might use it
 
-Moodle: ${config.MOODLE_NAME} v${config.MOODLE_VERSION}`,
+Moodle: \${config.MOODLE_NAME} v\${config.MOODLE_VERSION}`,
         },
       }],
     })

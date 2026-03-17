@@ -17,7 +17,7 @@ export async function registerInfraTools(server: McpServer, config: MoodleConfig
 
   server.tool(
     'get_infra_context',
-    'Infraestructura completa de esta instancia: RabbitMQ, servicios externos, URLs y puertos',
+    'Complete infrastructure of this instance: RabbitMQ, external services, URLs and ports',
     {},
     async () => {
       let microservices: Microservice[] = []
@@ -40,7 +40,7 @@ export async function registerInfraTools(server: McpServer, config: MoodleConfig
             rabbitmq: {
               host: config.RABBITMQ_HOST,
               amqpPort: config.RABBITMQ_PORT,
-              managementUrl: `http://${config.RABBITMQ_HOST}:${config.RABBITMQ_MANAGEMENT_PORT}`,
+              managementUrl: `http://\${config.RABBITMQ_HOST}:\${config.RABBITMQ_MANAGEMENT_PORT}`,
               user: config.RABBITMQ_USER,
             },
             microservices,
@@ -50,24 +50,24 @@ export async function registerInfraTools(server: McpServer, config: MoodleConfig
     }
   )
 
-  // Tool: Estado de RabbitMQ via management API
+  // Tool: RabbitMQ Status via management API
   server.tool(
     'get_rabbitmq_status',
-    'Estado actual de RabbitMQ: queues activas, mensajes pendientes y consumers conectados',
+    'Current RabbitMQ status: active queues, pending messages and connected consumers',
     {},
     async () => {
       try {
         const auth = Buffer.from(
-          `${config.RABBITMQ_USER}:${config.RABBITMQ_PASSWORD}`
+          `\${config.RABBITMQ_USER}:\${config.RABBITMQ_PASSWORD}`
         ).toString('base64')
 
-        const baseUrl = `http://${config.RABBITMQ_HOST}:${config.RABBITMQ_MANAGEMENT_PORT}/api`
+        const baseUrl = `http://\${config.RABBITMQ_HOST}:\${config.RABBITMQ_MANAGEMENT_PORT}/api`
 
         const fetchJson = async (endpoint: string) => {
-          const res = await fetch(`${baseUrl}${endpoint}`, {
-            headers: { Authorization: `Basic ${auth}` },
+          const res = await fetch(`\${baseUrl}\${endpoint}`, {
+            headers: { Authorization: `Basic \${auth}` },
           })
-          if (!res.ok) throw new Error(`HTTP ${res.status} en ${endpoint}`)
+          if (!res.ok) throw new Error(`HTTP \${res.status} at \${endpoint}`)
           return res.json()
         }
 
@@ -105,7 +105,7 @@ export async function registerInfraTools(server: McpServer, config: MoodleConfig
         return {
           content: [{
             type: 'text',
-            text: `No se pudo conectar a RabbitMQ management: ${err.message}\nVerifica que el container esté corriendo en puerto ${config.RABBITMQ_MANAGEMENT_PORT}`,
+            text: `Could not connect to RabbitMQ management: \${err.message}\nVerify that the container is running on port \${config.RABBITMQ_MANAGEMENT_PORT}`,
           }],
         }
       }

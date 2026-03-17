@@ -15,7 +15,7 @@ export async function registerWebServiceTools(server: McpServer, config: MoodleC
 
   server.tool(
     'list_webservices',
-    'Lista los web services habilitados en Moodle, sus funciones y los tokens de acceso activos',
+    'Lists the enabled web services in Moodle, their functions and active access tokens',
     {},
     async () => {
       try {
@@ -52,15 +52,15 @@ export async function registerWebServiceTools(server: McpServer, config: MoodleC
           }],
         }
       } catch (err: any) {
-        return { content: [{ type: 'text', text: `Error: ${err.message}` }] }
+        return { content: [{ type: 'text', text: `Error: \${err.message}` }] }
       }
     }
   )
 
   server.tool(
     'get_service_functions',
-    'Lista las funciones PHP registradas en un web service específico',
-    { serviceName: z.string().describe('Nombre o parte del nombre del servicio') },
+    'Lists the PHP functions registered in a specific web service',
+    { serviceName: z.string().describe('Name or part of the name of the service') },
     async ({ serviceName }) => {
       try {
         const [rows] = await pool.execute<any[]>(`
@@ -70,7 +70,7 @@ export async function registerWebServiceTools(server: McpServer, config: MoodleC
           JOIN mdl_external_services s ON s.id = sf.externalserviceid
           LEFT JOIN mdl_external_functions ef ON ef.name = sf.functionname
           WHERE s.name LIKE ? OR s.shortname LIKE ?
-        `, [`%${serviceName}%`, `%${serviceName}%`])
+        `, [`%\${serviceName}%`, `%\${serviceName}%`])
 
         return {
           content: [{
@@ -79,7 +79,7 @@ export async function registerWebServiceTools(server: McpServer, config: MoodleC
           }],
         }
       } catch (err: any) {
-        return { content: [{ type: 'text', text: `Error: ${err.message}` }] }
+        return { content: [{ type: 'text', text: `Error: \${err.message}` }] }
       }
     }
   )

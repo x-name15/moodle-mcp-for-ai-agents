@@ -19,7 +19,7 @@ function getEmittedEvents(pluginPath: string): string[] {
           try {
             const content = fs.readFileSync(full, 'utf-8')
             const triggerMatches = content.matchAll(
-              /\\([a-zA-Z0-9_\\]+)::create\s*\(|trigger_event\s*\(\s*['"]([^'"]+)['"]/g
+              /\\\\([a-zA-Z0-9_\\\\]+)::create\\s*\\(|trigger_event\\s*\\(\\s*['"]([^'"]+)['"]/g
             )
             for (const m of triggerMatches) {
               const event = m[1] ?? m[2]
@@ -42,7 +42,7 @@ function buildObserverMap(rootPath: string): Map<string, string[]> {
     if (!fs.existsSync(observersPath)) return
     try {
       const content = fs.readFileSync(observersPath, 'utf-8')
-      const matches = content.matchAll(/'eventname'\s*=>\s*'([^']+)'/g)
+      const matches = content.matchAll(/'eventname'\\s*=>\\s*'([^']+)'/g)
       for (const [, eventname] of matches) {
         const current = map.get(eventname) ?? []
         current.push(pluginName)
@@ -59,7 +59,7 @@ function buildObserverMap(rootPath: string): Map<string, string[]> {
       const entries = fs.readdirSync(typePath, { withFileTypes: true })
       for (const entry of entries) {
         if (!entry.isDirectory()) continue
-        const fullname = `${typeDir}_${entry.name}`
+        const fullname = `\${typeDir}_\${entry.name}`
         const observersPath = path.join(typePath, entry.name, 'db', 'observers.php')
         scanObserversFile(fullname, observersPath)
       }
@@ -74,10 +74,10 @@ export async function registerIntegrationTools(server: McpServer, config: Moodle
   // ── suggest_hook_integration ──────────────────────────────────────────────
   server.tool(
     'suggest_hook_integration',
-    'Sugiere cómo integrar dos plugins usando hooks y eventos de Moodle. Analiza qué eventos dispara A que B podría escuchar, y viceversa.',
+    'Suggests how to integrate two plugins using Moodle hooks and events. Analyzes which events A dispatches that B could listen to, and vice versa.',
     {
-      pluginA: z.string().describe('Plugin emisor, ej: mod_assign'),
-      pluginB: z.string().describe('Plugin receptor, ej: local_messagebroker'),
+      pluginA: z.string().describe('Emitting plugin, ex: mod_assign'),
+      pluginB: z.string().describe('Receiving plugin, ex: local_messagebroker'),
     },
     async ({ pluginA, pluginB }) => {
       const findPluginPath = (fullname: string): string | null => {
@@ -92,10 +92,10 @@ export async function registerIntegrationTools(server: McpServer, config: Moodle
       const pathA = findPluginPath(pluginA)
       const pathB = findPluginPath(pluginB)
 
-      if (!pathA) return { content: [{ type: 'text', text: `No se encontró el path de "${pluginA}"` }] }
-      if (!pathB) return { content: [{ type: 'text', text: `No se encontró el path de "${pluginB}"` }] }
+      if (!pathA) return { content: [{ type: 'text', text: `Could not find path for "\${pluginA}"` }] }
+      if (!pathB) return { content: [{ type: 'text', text: `Could not find path for "\${pluginB}"` }] }
 
-      console.error(`[MCP] Analizando hooks entre ${pluginA} y ${pluginB}...`)
+      console.error(`[MCP] Analyzing hooks between \${pluginA} and \${pluginB}...`)
 
       const eventsFromA = getEmittedEvents(pathA)
       const eventsFromB = getEmittedEvents(pathB)
@@ -120,32 +120,32 @@ export async function registerIntegrationTools(server: McpServer, config: Moodle
 
       if (eventsFromA.length > 0 && !bAlreadyListensA) {
         suggestions.push(
-          `"${pluginB}" puede escuchar estos eventos de "${pluginA}" añadiendo en db/observers.php:\n` +
+          `"\${pluginB}" can listen to these events from "\${pluginA}" by adding to db/observers.php:\\n` +
           eventsFromA.slice(0, 3).map(e =>
-            `  [\n    'eventname' => '${e}',\n    'callback'  => '\\${pluginB.replace('_', '\\')}\\observer::on_${e.split('\\').pop()?.toLowerCase() ?? 'event'}',\n  ]`
-          ).join(',\n')
+            `  [\\n    'eventname' => '\${e}',\\n    'callback'  => '\\\\\${pluginB.replace('_', '\\\\')}\\\\observer::on_\${e.split('\\\\').pop()?.toLowerCase() ?? 'event'}',\\n  ]`
+          ).join(',\\n')
         )
       }
 
       if (eventsFromB.length > 0 && !aAlreadyListensB) {
         suggestions.push(
-          `"${pluginA}" puede escuchar estos eventos de "${pluginB}" añadiendo en db/observers.php:\n` +
+          `"\${pluginA}" can listen to these events from "\${pluginB}" by adding to db/observers.php:\\n` +
           eventsFromB.slice(0, 3).map(e =>
-            `  [\n    'eventname' => '${e}',\n    'callback'  => '\\${pluginA.replace('_', '\\')}\\observer::on_${e.split('\\').pop()?.toLowerCase() ?? 'event'}',\n  ]`
-          ).join(',\n')
+            `  [\\n    'eventname' => '\${e}',\\n    'callback'  => '\\\\\${pluginA.replace('_', '\\\\')}\\\\observer::on_\${e.split('\\\\').pop()?.toLowerCase() ?? 'event'}',\\n  ]`
+          ).join(',\\n')
         )
       }
 
       if (eventsFromA.length === 0 && eventsFromB.length === 0) {
         suggestions.push(
-          `Ninguno dispara eventos detectables automáticamente. ` +
-          `Usa get_hook_usage para buscar clases de eventos manualmente, ` +
-          `o integrarlos via Web Service con get_plugin_api.`
+          `Neither dispatches automatically detectable events. ` +
+          `Use get_hook_usage to search for event classes manually, ` +
+          `or integrate them via Web Service with get_plugin_api.`
         )
       }
 
-      if (bAlreadyListensA) suggestions.push(`"${pluginB}" ya escucha eventos de "${pluginA}".`)
-      if (aAlreadyListensB) suggestions.push(`"${pluginA}" ya escucha eventos de "${pluginB}".`)
+      if (bAlreadyListensA) suggestions.push(`"\${pluginB}" already listens to events from "\${pluginA}".`)
+      if (aAlreadyListensB) suggestions.push(`"\${pluginA}" already listens to events from "\${pluginB}".`)
 
       return {
         content: [{
@@ -159,9 +159,9 @@ export async function registerIntegrationTools(server: McpServer, config: Moodle
             otherPluginsListeningToA: otherListenersOfA,
             suggestions,
             nextSteps: [
-              'Usa get_plugin_api para ver los WS disponibles de cada plugin',
-              'Usa find_integration_points para ver tablas y hooks en común',
-              'Usa get_hook_usage para buscar clases de eventos específicas en el código',
+              'Use get_plugin_api to see available WS for each plugin',
+              'Use find_integration_points to see shared tables and hooks',
+              'Use get_hook_usage to search for specific event classes in the code',
             ],
           }, null, 2),
         }],
@@ -172,19 +172,19 @@ export async function registerIntegrationTools(server: McpServer, config: Moodle
   // ── generate_plugin_scaffold ──────────────────────────────────────────────
   server.tool(
     'generate_plugin_scaffold',
-    'Genera la estructura completa de archivos para un plugin nuevo de Moodle listo para desarrollar.',
+    'Generates the complete file structure for a new Moodle plugin ready for development.',
     {
-      pluginType: z.enum(['local', 'mod', 'block']).describe('Tipo de plugin'),
-      pluginName: z.string().describe('Nombre corto sin prefijo, ej: mynotifications'),
-      pluginPurpose: z.string().describe('Para qué sirve, ej: gestiona notificaciones push'),
+      pluginType: z.enum(['local', 'mod', 'block']).describe('Plugin type'),
+      pluginName: z.string().describe('Short name without prefix, ex: mynotifications'),
+      pluginPurpose: z.string().describe('What it is used for, ex: manages push notifications'),
       features: z.array(
         z.enum(['db', 'webservices', 'observers', 'cron', 'settings', 'capabilities'])
-      ).describe('Features a incluir'),
+      ).describe('Features to include'),
     },
     async ({ pluginType, pluginName, features, pluginPurpose }) => {
-      const fullname = `${pluginType}_${pluginName}`
+      const fullname = `\${pluginType}_\${pluginName}`
       const now = new Date()
-      const versionDate = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}00`
+      const versionDate = `\${now.getFullYear()}\${String(now.getMonth() + 1).padStart(2, '0')}\${String(now.getDate()).padStart(2, '0')}00`
 
       const moodleVersionMap: Record<string, string> = {
         '4.1': '2022112800',
@@ -201,21 +201,21 @@ export async function registerIntegrationTools(server: McpServer, config: Moodle
       files['version.php'] = `<?php
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = '${fullname}';
-$plugin->version   = ${versionDate};
-$plugin->requires  = ${requiresVersion};
+$plugin->component = '\${fullname}';
+$plugin->version   = \${versionDate};
+$plugin->requires  = \${requiresVersion};
 $plugin->maturity  = MATURITY_ALPHA;
 $plugin->release   = '1.0.0';
 `
       // ── db/install.xml ────────────────────────────────────────────────────
       if (features.includes('db')) {
         files['db/install.xml'] = `<?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="${pluginType}/${pluginName}/db" VERSION="${versionDate}"
-    COMMENT="XMLDB file for Moodle ${pluginType}/${pluginName}"
+<XMLDB PATH="\${pluginType}/\${pluginName}/db" VERSION="\${versionDate}"
+    COMMENT="XMLDB file for Moodle \${pluginType}/\${pluginName}"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
   <TABLES>
-    <TABLE NAME="${fullname}_items" COMMENT="Main table for ${fullname}">
+    <TABLE NAME="\${fullname}_items" COMMENT="Main table for \${fullname}">
       <FIELDS>
         <FIELD NAME="id"           TYPE="int"  LENGTH="10"  NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="courseid"     TYPE="int"  LENGTH="10"  NOTNULL="true" DEFAULT="0"/>
@@ -241,7 +241,7 @@ $plugin->release   = '1.0.0';
         files['db/upgrade.php'] = `<?php
 defined('MOODLE_INTERNAL') || die();
 
-function xmldb_${fullname}_upgrade($oldversion) {
+function xmldb_\${fullname}_upgrade($oldversion) {
     global $DB;
     $dbman = $DB->get_manager();
     // Add upgrade steps here as the plugin evolves.
@@ -256,7 +256,7 @@ function xmldb_${fullname}_upgrade($oldversion) {
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-    '${fullname}:view' => [
+    '\${fullname}:view' => [
         'riskbitmask'  => RISK_PERSONAL,
         'captype'      => 'read',
         'contextlevel' => CONTEXT_COURSE,
@@ -267,7 +267,7 @@ $capabilities = [
             'manager'        => CAP_ALLOW,
         ],
     ],
-    '${fullname}:manage' => [
+    '\${fullname}:manage' => [
         'riskbitmask'  => RISK_CONFIG,
         'captype'      => 'write',
         'contextlevel' => CONTEXT_COURSE,
@@ -286,33 +286,33 @@ $capabilities = [
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
-    '${fullname}_get_items' => [
-        'classname'    => '\\\\${fullname}\\\\external\\\\get_items',
+    '\${fullname}_get_items' => [
+        'classname'    => '\\\\\\\\\${fullname}\\\\\\\\external\\\\\\\\get_items',
         'description'  => 'Returns items for a given course',
         'type'         => 'read',
         'ajax'         => true,
-        'capabilities' => '${fullname}:view',
+        'capabilities' => '\${fullname}:view',
     ],
-    '${fullname}_create_item' => [
-        'classname'    => '\\\\${fullname}\\\\external\\\\create_item',
+    '\${fullname}_create_item' => [
+        'classname'    => '\\\\\\\\\${fullname}\\\\\\\\external\\\\\\\\create_item',
         'description'  => 'Creates a new item',
         'type'         => 'write',
         'ajax'         => true,
-        'capabilities' => '${fullname}:manage',
+        'capabilities' => '\${fullname}:manage',
     ],
 ];
 
 $services = [
-    '${fullname} service' => [
-        'functions'       => ['${fullname}_get_items', '${fullname}_create_item'],
+    '\${fullname} service' => [
+        'functions'       => ['\${fullname}_get_items', '\${fullname}_create_item'],
         'restrictedusers' => 0,
         'enabled'         => 1,
-        'shortname'       => '${fullname}_service',
+        'shortname'       => '\${fullname}_service',
     ],
 ];
 `
         files['classes/external/get_items.php'] = `<?php
-namespace ${fullname}\\external;
+namespace \${fullname}\\external;
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
@@ -330,9 +330,9 @@ class get_items extends \\external_api {
         $params  = self::validate_parameters(self::execute_parameters(), ['courseid' => $courseid]);
         $context = \\context_course::instance($params['courseid']);
         self::validate_context($context);
-        require_capability('${fullname}:view', $context);
+        require_capability('\${fullname}:view', $context);
 
-        return array_values($DB->get_records('${fullname}_items', ['courseid' => $params['courseid']]));
+        return array_values($DB->get_records('\${fullname}_items', ['courseid' => $params['courseid']]));
     }
 
     public static function execute_returns(): \\external_multiple_structure {
@@ -351,7 +351,7 @@ class get_items extends \\external_api {
 }
 `
         files['classes/external/create_item.php'] = `<?php
-namespace ${fullname}\\external;
+namespace \${fullname}\\external;
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
@@ -370,7 +370,7 @@ class create_item extends \\external_api {
         $params  = self::validate_parameters(self::execute_parameters(), ['courseid' => $courseid, 'name' => $name]);
         $context = \\context_course::instance($params['courseid']);
         self::validate_context($context);
-        require_capability('${fullname}:manage', $context);
+        require_capability('\${fullname}:manage', $context);
 
         $record = (object)[
             'courseid'     => $params['courseid'],
@@ -380,7 +380,7 @@ class create_item extends \\external_api {
             'timecreated'  => time(),
             'timemodified' => time(),
         ];
-        $record->id = $DB->insert_record('${fullname}_items', $record);
+        $record->id = $DB->insert_record('\${fullname}_items', $record);
         return (array) $record;
     }
 
@@ -406,17 +406,17 @@ defined('MOODLE_INTERNAL') || die();
 
 $observers = [
     [
-        'eventname' => '\\\\core\\\\event\\\\course_completed',
-        'callback'  => '\\\\${fullname}\\\\observer::on_course_completed',
+        'eventname' => '\\\\\\\\core\\\\\\\\event\\\\\\\\course_completed',
+        'callback'  => '\\\\\\\\\${fullname}\\\\\\\\observer::on_course_completed',
     ],
     [
-        'eventname' => '\\\\mod_assign\\\\event\\\\assessable_submitted',
-        'callback'  => '\\\\${fullname}\\\\observer::on_assignment_submitted',
+        'eventname' => '\\\\\\\\mod_assign\\\\\\\\event\\\\\\\\assessable_submitted',
+        'callback'  => '\\\\\\\\\${fullname}\\\\\\\\observer::on_assignment_submitted',
     ],
 ];
 `
         files['classes/observer.php'] = `<?php
-namespace ${fullname};
+namespace \${fullname};
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -443,7 +443,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $tasks = [
     [
-        'classname' => '\\\\${fullname}\\\\task\\\\process_items',
+        'classname' => '\\\\\\\\\${fullname}\\\\\\\\task\\\\\\\\process_items',
         'blocking'  => 0,
         'minute'    => '*/5',
         'hour'      => '*',
@@ -455,29 +455,29 @@ $tasks = [
 ];
 `
         files['classes/task/process_items.php'] = `<?php
-namespace ${fullname}\\task;
+namespace \${fullname}\\task;
 
 defined('MOODLE_INTERNAL') || die();
 
 class process_items extends \\core\\task\\scheduled_task {
 
     public function get_name(): string {
-        return get_string('task_process_items', '${fullname}');
+        return get_string('task_process_items', '\${fullname}');
     }
 
     public function execute(): void {
         global $DB;
-        $pending = $DB->get_records('${fullname}_items', ['status' => 0], 'timecreated ASC', '*', 0, 100);
+        $pending = $DB->get_records('\${fullname}_items', ['status' => 0], 'timecreated ASC', '*', 0, 100);
 
         foreach ($pending as $item) {
             try {
-                $DB->set_field('${fullname}_items', 'status',       1,      ['id' => $item->id]);
-                $DB->set_field('${fullname}_items', 'timemodified', time(), ['id' => $item->id]);
+                $DB->set_field('\${fullname}_items', 'status',       1,      ['id' => $item->id]);
+                $DB->set_field('\${fullname}_items', 'timemodified', time(), ['id' => $item->id]);
             } catch (\\Exception $e) {
                 mtrace("Error processing item {$item->id}: " . $e->getMessage());
             }
         }
-        mtrace('Processed ' . count($pending) . ' items for ${fullname}');
+        mtrace('Processed ' . count($pending) . ' items for \${fullname}');
     }
 }
 `
@@ -489,21 +489,21 @@ class process_items extends \\core\\task\\scheduled_task {
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    $settings = new admin_settingpage('${fullname}', get_string('pluginname', '${fullname}'));
+    $settings = new admin_settingpage('\${fullname}', get_string('pluginname', '\${fullname}'));
     $ADMIN->add('localplugins', $settings);
 
     $settings->add(new admin_setting_configtext(
-        '${fullname}/apiurl',
-        get_string('setting_apiurl', '${fullname}'),
-        get_string('setting_apiurl_desc', '${fullname}'),
+        '\${fullname}/apiurl',
+        get_string('setting_apiurl', '\${fullname}'),
+        get_string('setting_apiurl_desc', '\${fullname}'),
         '',
         PARAM_URL
     ));
 
     $settings->add(new admin_setting_configcheckbox(
-        '${fullname}/enabled',
-        get_string('setting_enabled', '${fullname}'),
-        get_string('setting_enabled_desc', '${fullname}'),
+        '\${fullname}/enabled',
+        get_string('setting_enabled', '\${fullname}'),
+        get_string('setting_enabled_desc', '\${fullname}'),
         1
     ));
 }
@@ -512,27 +512,27 @@ if ($hassiteconfig) {
 
       // ── lang/en/<fullname>.php ────────────────────────────────────────────
       const langStrings: string[] = [
-        `$string['pluginname']      = '${pluginName}';`,
-        `$string['pluginname_desc'] = '${pluginPurpose}';`,
+        `$string['pluginname']      = '\${pluginName}';`,
+        `$string['pluginname_desc'] = '\${pluginPurpose}';`,
       ]
       if (features.includes('capabilities')) {
-        langStrings.push(`$string['${fullname}:view']   = 'View ${pluginName} items';`)
-        langStrings.push(`$string['${fullname}:manage'] = 'Manage ${pluginName} items';`)
+        langStrings.push(`$string['\${fullname}:view']   = 'View \${pluginName} items';`)
+        langStrings.push(`$string['\${fullname}:manage'] = 'Manage \${pluginName} items';`)
       }
       if (features.includes('cron')) {
-        langStrings.push(`$string['task_process_items'] = 'Process pending ${pluginName} items';`)
+        langStrings.push(`$string['task_process_items'] = 'Process pending \${pluginName} items';`)
       }
       if (features.includes('settings')) {
         langStrings.push(`$string['setting_apiurl']          = 'API URL';`)
         langStrings.push(`$string['setting_apiurl_desc']     = 'External API endpoint URL';`)
-        langStrings.push(`$string['setting_enabled']         = 'Enable ${pluginName}';`)
-        langStrings.push(`$string['setting_enabled_desc']    = 'Enable or disable ${pluginName} functionality';`)
+        langStrings.push(`$string['setting_enabled']         = 'Enable \${pluginName}';`)
+        langStrings.push(`$string['setting_enabled_desc']    = 'Enable or disable \${pluginName} functionality';`)
       }
 
-      files[`lang/en/${fullname}.php`] = `<?php
+      files[`lang/en/\${fullname}.php`] = `<?php
 defined('MOODLE_INTERNAL') || die();
 
-${langStrings.join('\n')}
+\${langStrings.join('\\n')}
 `
 
       // ── index.php (local y block) ─────────────────────────────────────────
@@ -542,15 +542,15 @@ require_once(__DIR__ . '/../../config.php');
 require_login();
 
 $context = context_system::instance();
-${features.includes('capabilities') ? `require_capability('${fullname}:view', $context);` : ''}
+\${features.includes('capabilities') ? `require_capability('\${fullname}:view', $context);` : ''}
 
-$PAGE->set_url(new moodle_url('/local/${pluginName}/index.php'));
+$PAGE->set_url(new moodle_url('/local/\${pluginName}/index.php'));
 $PAGE->set_context($context);
-$PAGE->set_title(get_string('pluginname', '${fullname}'));
-$PAGE->set_heading(get_string('pluginname', '${fullname}'));
+$PAGE->set_title(get_string('pluginname', '\${fullname}'));
+$PAGE->set_heading(get_string('pluginname', '\${fullname}'));
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('pluginname', '${fullname}'));
+echo $OUTPUT->heading(get_string('pluginname', '\${fullname}'));
 // Add your content here
 echo $OUTPUT->footer();
 `
@@ -560,10 +560,10 @@ echo $OUTPUT->footer();
         files['block_' + pluginName + '.php'] = `<?php
 defined('MOODLE_INTERNAL') || die();
 
-class block_${pluginName} extends block_base {
+class block_\${pluginName} extends block_base {
 
     public function init(): void {
-        $this->title = get_string('pluginname', '${fullname}');
+        $this->title = get_string('pluginname', '\${fullname}');
     }
 
     public function get_content(): stdClass {
@@ -571,9 +571,9 @@ class block_${pluginName} extends block_base {
             return $this->content;
         }
         $this->content = new stdClass();
-        ${features.includes('capabilities') ? `
+        \${features.includes('capabilities') ? `
         $context = context_block::instance($this->instance->id);
-        if (!has_capability('${fullname}:view', $context)) {
+        if (!has_capability('\${fullname}:view', $context)) {
             $this->content->text = '';
             return $this->content;
         }` : ''}
@@ -598,22 +598,22 @@ class block_${pluginName} extends block_base {
             plugin: fullname,
             moodle: config.MOODLE_NAME,
             version: config.MOODLE_VERSION,
-            targetPath: `${config.MOODLE_ROOT_PATH}/${pluginType}/${pluginName}/`,
+            targetPath: `\${config.MOODLE_ROOT_PATH}/\${pluginType}/\${pluginName}/`,
             features,
             fileCount: fileList.length,
-            structure: fileList.map(f => `${pluginType}/${pluginName}/${f}`).join('\n'),
+            structure: fileList.map(f => `\${pluginType}/\${pluginName}/\${f}`).join('\\n'),
             files,
             nextSteps: [
-              `Copia los archivos en: ${config.MOODLE_ROOT_PATH}/${pluginType}/${pluginName}/`,
-              `Ve a Site Admin → Notifications para instalar el plugin`,
+              `Copy the files to: \${config.MOODLE_ROOT_PATH}/\${pluginType}/\${pluginName}/`,
+              `Go to Site Admin -> Notifications to install the plugin`,
               features.includes('webservices')
-                ? `Activa el servicio en Site Admin → Plugins → Web services → External services`
+                ? `Activate the service in Site Admin -> Plugins -> Web services -> External services`
                 : null,
               features.includes('cron')
-                ? `Verifica la tarea en Site Admin → Server → Scheduled tasks`
+                ? `Verify the task in Site Admin -> Server -> Scheduled tasks`
                 : null,
               features.includes('capabilities')
-                ? `Asigna capabilities en Site Admin → Users → Permissions → Define roles`
+                ? `Assign capabilities in Site Admin -> Users -> Permissions -> Define roles`
                 : null,
             ].filter(Boolean),
           }, null, 2),

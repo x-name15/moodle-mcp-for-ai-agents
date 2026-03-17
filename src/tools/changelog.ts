@@ -6,49 +6,49 @@ import type { MoodleConfig } from '../config.js'
 
 // ── Parsers ───────────────────────────────────────────────────────────────────
 
-// Extrae bloques de versión de upgrade.php
-// Busca patrones como: if ($oldversion < 2023010100) { ... }
+// Extracts version blocks from upgrade.php
+// Searches for patterns like: if ($oldversion < 2023010100) { ... }
 function parseUpgradePhp(content: string): UpgradeStep[] {
   const steps: UpgradeStep[] = []
 
   const blockMatches = content.matchAll(
-    /if\s*\(\s*\$oldversion\s*<\s*(\d+)\s*\)\s*\{([\s\S]*?)(?=if\s*\(\s*\$oldversion|return true)/g
+    /if\\s*\\(\\s*\\$oldversion\\s*<\\s*(\\d+)\\s*\\)\\s*\\{([\\s\\S]*?)(?=if\\s*\\(\\s*\\$oldversion|return true)/g
   )
 
   for (const [, version, body] of blockMatches) {
     const changes: string[] = []
 
-    // Tablas añadidas
-    const addTable = body.matchAll(/install_one_main_table\s*\(\s*['"]([^'"]+)['"]/g)
-    for (const [, t] of addTable) changes.push(`ADD TABLE: ${t}`)
+    // Added tables
+    const addTable = body.matchAll(/install_one_main_table\\s*\\(\\s*['"]([^'"]+)['"]/g)
+    for (const [, t] of addTable) changes.push(`ADD TABLE: \${t}`)
 
-    const createTable = body.matchAll(/create_table\s*\(\s*\$table\s*\)[\s\S]{0,200}NAME\s*=\s*['"]([^'"]+)['"]/g)
-    for (const [, t] of createTable) changes.push(`CREATE TABLE: ${t}`)
+    const createTable = body.matchAll(/create_table\\s*\\(\\s*\\$table\\s*\\)[\\s\\S]{0,200}NAME\\s*=\\s*['"]([^'"]+)['"]/g)
+    for (const [, t] of createTable) changes.push(`CREATE TABLE: \${t}`)
 
-    // Tablas eliminadas
-    const dropTable = body.matchAll(/drop_table[\s\S]{0,100}NAME\s*=\s*['"]([^'"]+)['"]/g)
-    for (const [, t] of dropTable) changes.push(`DROP TABLE: ${t}`)
+    // Dropped tables
+    const dropTable = body.matchAll(/drop_table[\\s\\S]{0,100}NAME\\s*=\\s*['"]([^'"]+)['"]/g)
+    for (const [, t] of dropTable) changes.push(`DROP TABLE: \${t}`)
 
-    // Campos añadidos
-    const addField = body.matchAll(/add_field[\s\S]{0,200}NAME\s*=\s*['"]([^'"]+)['"]/g)
-    for (const [, f] of addField) changes.push(`ADD FIELD: ${f}`)
+    // Added fields
+    const addField = body.matchAll(/add_field[\\s\\S]{0,200}NAME\\s*=\\s*['"]([^'"]+)['"]/g)
+    for (const [, f] of addField) changes.push(`ADD FIELD: \${f}`)
 
-    // Campos eliminados
-    const dropField = body.matchAll(/drop_field[\s\S]{0,200}NAME\s*=\s*['"]([^'"]+)['"]/g)
-    for (const [, f] of dropField) changes.push(`DROP FIELD: ${f}`)
+    // Dropped fields
+    const dropField = body.matchAll(/drop_field[\\s\\S]{0,200}NAME\\s*=\\s*['"]([^'"]+)['"]/g)
+    for (const [, f] of dropField) changes.push(`DROP FIELD: \${f}`)
 
-    // Campos modificados
-    const changeField = body.matchAll(/change_field[\s\S]{0,200}NAME\s*=\s*['"]([^'"]+)['"]/g)
-    for (const [, f] of changeField) changes.push(`MODIFY FIELD: ${f}`)
+    // Modified fields
+    const changeField = body.matchAll(/change_field[\\s\\S]{0,200}NAME\\s*=\\s*['"]([^'"]+)['"]/g)
+    for (const [, f] of changeField) changes.push(`MODIFY FIELD: \${f}`)
 
-    // Índices
-    const addIndex = body.matchAll(/add_index[\s\S]{0,200}NAME\s*=\s*['"]([^'"]+)['"]/g)
-    for (const [, i] of addIndex) changes.push(`ADD INDEX: ${i}`)
+    // Indexes
+    const addIndex = body.matchAll(/add_index[\\s\\S]{0,200}NAME\\s*=\\s*['"]([^'"]+)['"]/g)
+    for (const [, i] of addIndex) changes.push(`ADD INDEX: \${i}`)
 
-    const dropIndex = body.matchAll(/drop_index[\s\S]{0,200}NAME\s*=\s*['"]([^'"]+)['"]/g)
-    for (const [, i] of dropIndex) changes.push(`DROP INDEX: ${i}`)
+    const dropIndex = body.matchAll(/drop_index[\\s\\S]{0,200}NAME\\s*=\\s*['"]([^'"]+)['"]/g)
+    for (const [, i] of dropIndex) changes.push(`DROP INDEX: \${i}`)
 
-    // Savepoint (confirma que el bloque es real)
+    // Savepoint (confirms the block is real)
     const hasSavepoint = body.includes('savepoint')
 
     if (changes.length > 0 || hasSavepoint) {
@@ -63,13 +63,13 @@ function parseUpgradePhp(content: string): UpgradeStep[] {
   return steps.sort((a, b) => a.version - b.version)
 }
 
-// Extrae entradas de CHANGES.md / CHANGELOG.md
+// Extracts entries from CHANGES.md / CHANGELOG.md
 function parseChangelog(content: string): ChangelogEntry[] {
   const entries: ChangelogEntry[] = []
 
-  // Formato común: ## [1.2.0] - 2023-01-15  o  ## Version 1.2.0
+  // Common format: ## [1.2.0] - 2023-01-15  or  ## Version 1.2.0
   const sectionMatches = content.matchAll(
-    /^#{1,3}\s+(?:Version\s+)?v?(\d+[\d.]+)(?:\s*[-–]\s*(\d{4}-\d{2}-\d{2}))?([\s\S]*?)(?=^#{1,3}\s+(?:Version\s+)?v?\d|\s*$)/gm
+    /^#{1,3}\\s+(?:Version\\s+)?v?(\\d+[\\d.]+)(?:\\s*[-–]\\s*(\\d{4}-\\d{2}-\\d{2}))?([\\s\\S]*?)(?=^#{1,3}\\s+(?:Version\\s+)?v?\\d|\\s*$)/gm
   )
 
   for (const [, version, date, body] of sectionMatches) {
@@ -78,7 +78,7 @@ function parseChangelog(content: string): ChangelogEntry[] {
     const changed: string[] = []
     const fixed: string[] = []
 
-    const lines = body.split('\n').map(l => l.trim()).filter(Boolean)
+    const lines = body.split('\\n').map(l => l.trim()).filter(Boolean)
     let currentSection = 'changed'
 
     for (const line of lines) {
@@ -88,7 +88,7 @@ function parseChangelog(content: string): ChangelogEntry[] {
       else if (lower.startsWith('### changed') || lower === '**changed**') currentSection = 'changed'
       else if (lower.startsWith('### fixed') || lower === '**fixed**') currentSection = 'fixed'
       else if (line.startsWith('-') || line.startsWith('*')) {
-        const text = line.replace(/^[-*]\s*/, '')
+        const text = line.replace(/^[-*]\\s*/, '')
         if (currentSection === 'breaking') breaking.push(text)
         else if (currentSection === 'added') added.push(text)
         else if (currentSection === 'fixed') fixed.push(text)
@@ -104,29 +104,29 @@ function parseChangelog(content: string): ChangelogEntry[] {
   return entries
 }
 
-// Detecta breaking changes en upgrade.php analizando el impacto
+// Detects breaking changes in upgrade.php by analyzing the impact
 function detectBreakingChanges(steps: UpgradeStep[], pluginFullname: string): BreakingChange[] {
   const breaking: BreakingChange[] = []
 
   for (const step of steps) {
     for (const change of step.dbChanges) {
-      // DROP es siempre breaking
+      // DROP is always breaking
       if (change.startsWith('DROP TABLE') || change.startsWith('DROP FIELD')) {
         breaking.push({
           version: step.version,
           type: 'db_removal',
           description: change,
-          impact: `Cualquier plugin que consulte esta tabla/campo directamente se romperá`,
+          impact: `Any plugin that queries this table/field directly will break`,
           severity: 'high',
         })
       }
-      // MODIFY FIELD puede ser breaking
+      // MODIFY FIELD can be breaking
       if (change.startsWith('MODIFY FIELD')) {
         breaking.push({
           version: step.version,
           type: 'db_modification',
           description: change,
-          impact: `Queries que asuman el tipo o tamaño original pueden fallar`,
+          impact: `Queries assuming the original type or size may fail`,
           severity: 'medium',
         })
       }
@@ -169,7 +169,7 @@ function findPluginPath(rootPath: string, pluginName: string): string | null {
   const typeDir = parts[0]
   const name = parts.slice(1).join('_')
 
-  // blocks puede estar como "blocks" o "block"
+  // blocks can be "blocks" or "block"
   const candidates = [
     path.join(rootPath, typeDir, name),
     path.join(rootPath, typeDir === 'block' ? 'blocks' : typeDir, name),
@@ -185,24 +185,24 @@ function readIfExists(filePath: string): string | null {
   }
 }
 
-// ── Registro de tools ─────────────────────────────────────────────────────────
+// ── Tool Registration ─────────────────────────────────────────────────────────
 
 export async function registerChangelogTools(server: McpServer, config: MoodleConfig) {
 
-  // ── Tool 1: Historial completo de un plugin ───────────────────────────────
+  // ── Tool 1: Complete plugin history ───────────────────────────────
   server.tool(
     'get_plugin_history',
-    'Muestra el historial completo de cambios de un plugin: upgrade.php, CHANGELOG.md y CHANGES.md',
+    'Shows the complete change history of a plugin: upgrade.php, CHANGELOG.md and CHANGES.md',
     {
-      pluginName: z.string().describe('Nombre completo del plugin, ej: local_messagebroker'),
+      pluginName: z.string().describe('Full plugin name, ex: local_messagebroker'),
     },
     async ({ pluginName }) => {
       const pluginPath = findPluginPath(config.MOODLE_ROOT_PATH, pluginName)
       if (!pluginPath) {
-        return { content: [{ type: 'text', text: `Plugin "${pluginName}" no encontrado` }] }
+        return { content: [{ type: 'text', text: `Plugin "\${pluginName}" not found` }] }
       }
 
-      // Leer todos los archivos de historial disponibles
+      // Read all available history files
       const upgradeContent  = readIfExists(path.join(pluginPath, 'db', 'upgrade.php'))
       const changelogContent = readIfExists(path.join(pluginPath, 'CHANGELOG.md'))
         ?? readIfExists(path.join(pluginPath, 'CHANGES.md'))
@@ -210,11 +210,11 @@ export async function registerChangelogTools(server: McpServer, config: MoodleCo
         ?? readIfExists(path.join(pluginPath, 'changes.md'))
       const versionContent  = readIfExists(path.join(pluginPath, 'version.php'))
 
-      // Versión actual desde version.php
+      // Current version from version.php
       const currentVersion = versionContent
-        ?.match(/\$plugin->version\s*=\s*(\d+)/)?.[1] ?? 'unknown'
+        ?.match(/\\$plugin->version\\s*=\\s*(\\d+)/)?.[1] ?? 'unknown'
       const releaseVersion = versionContent
-        ?.match(/\$plugin->release\s*=\s*['"]([^'"]+)['"]/)?.[1] ?? 'unknown'
+        ?.match(/\\$plugin->release\\s*=\\s*['"]([^'"]+)['"]/)?.[1] ?? 'unknown'
 
       const upgradeSteps = upgradeContent ? parseUpgradePhp(upgradeContent) : []
       const changelogEntries = changelogContent ? parseChangelog(changelogContent) : []
@@ -249,18 +249,18 @@ export async function registerChangelogTools(server: McpServer, config: MoodleCo
     }
   )
 
-  // ── Tool 2: Cambios de DB entre versiones ─────────────────────────────────
+  // ── Tool 2: DB changes between versions ─────────────────────────────────
   server.tool(
     'get_db_upgrade_steps',
-    'Muestra exactamente qué cambios de base de datos hizo un plugin en upgrade.php, filtrable por versión',
+    'Shows exactly what database changes a plugin made in upgrade.php, filterable by version',
     {
-      pluginName: z.string().describe('Nombre completo del plugin, ej: local_messagebroker'),
-      fromVersion: z.number().optional().describe('Versión desde la que filtrar, ej: 2022010100'),
+      pluginName: z.string().describe('Full plugin name, ex: local_messagebroker'),
+      fromVersion: z.number().optional().describe('Version to filter from, ex: 2022010100'),
     },
     async ({ pluginName, fromVersion }) => {
       const pluginPath = findPluginPath(config.MOODLE_ROOT_PATH, pluginName)
       if (!pluginPath) {
-        return { content: [{ type: 'text', text: `Plugin "${pluginName}" no encontrado` }] }
+        return { content: [{ type: 'text', text: `Plugin "\${pluginName}" not found` }] }
       }
 
       const upgradeContent = readIfExists(path.join(pluginPath, 'db', 'upgrade.php'))
@@ -268,7 +268,7 @@ export async function registerChangelogTools(server: McpServer, config: MoodleCo
         return {
           content: [{
             type: 'text',
-            text: `El plugin "${pluginName}" no tiene db/upgrade.php — no ha tenido migraciones de BD`,
+            text: `The plugin "\${pluginName}" does not have db/upgrade.php — it hasn't had DB migrations`,
           }],
         }
       }
@@ -302,17 +302,17 @@ export async function registerChangelogTools(server: McpServer, config: MoodleCo
     }
   )
 
-  // ── Tool 3: Breaking changes que afectan a otros plugins ──────────────────
+  // ── Tool 3: Breaking changes affecting other plugins ──────────────────
   server.tool(
     'get_breaking_changes',
-    'Detecta si un plugin tiene breaking changes en su historial que puedan afectar a otros plugins que dependen de él',
+    'Detects if a plugin has breaking changes in its history that may affect other plugins depending on it',
     {
-      pluginName: z.string().describe('Plugin a analizar, ej: local_messagebroker'),
+      pluginName: z.string().describe('Plugin to analyze, ex: local_messagebroker'),
     },
     async ({ pluginName }) => {
       const pluginPath = findPluginPath(config.MOODLE_ROOT_PATH, pluginName)
       if (!pluginPath) {
-        return { content: [{ type: 'text', text: `Plugin "${pluginName}" no encontrado` }] }
+        return { content: [{ type: 'text', text: `Plugin "\${pluginName}" not found` }] }
       }
 
       const upgradeContent  = readIfExists(path.join(pluginPath, 'db', 'upgrade.php'))
@@ -331,8 +331,8 @@ export async function registerChangelogTools(server: McpServer, config: MoodleCo
         }))
       )
 
-      // Buscar qué otros plugins dependen de este
-      // (reutilizamos la lógica de scaneo básico)
+      // Find which other plugins depend on this one
+      // (reuse basic scanning logic)
       const dependents: string[] = []
       const pluginTypeDirs = ['mod', 'blocks', 'local', 'auth', 'enrol', 'report']
       for (const typeDir of pluginTypeDirs) {
@@ -345,7 +345,7 @@ export async function registerChangelogTools(server: McpServer, config: MoodleCo
             const versionFile = path.join(typePath, entry.name, 'version.php')
             const content = readIfExists(versionFile)
             if (content?.includes(pluginName)) {
-              dependents.push(`${typeDir}_${entry.name}`)
+              dependents.push(`\${typeDir}_\${entry.name}`)
             }
           }
         } catch { }
@@ -364,10 +364,10 @@ export async function registerChangelogTools(server: McpServer, config: MoodleCo
               hasHighRisk: breaking.some(b => b.severity === 'high'),
               affectedDependents: dependents.length,
               recommendation: breaking.length > 0 && dependents.length > 0
-                ? `⚠ Este plugin tiene ${breaking.length} breaking change(s) y ${dependents.length} plugin(s) dependen de él. Revisa ${dependents.join(', ')} antes de actualizar.`
+                ? `⚠ This plugin has \${breaking.length} breaking change(s) and \${dependents.length} plugin(s) depend on it. Review \${dependents.join(', ')} before updating.`
                 : breaking.length > 0
-                  ? `Este plugin tiene breaking changes pero ningún plugin declarado depende de él directamente.`
-                  : `No se detectaron breaking changes en el historial de este plugin.`,
+                  ? `This plugin has breaking changes but no declared plugin depends on it directly.`
+                  : `No breaking changes detected in this plugin's history.`,
             },
           }, null, 2),
         }],
@@ -375,10 +375,10 @@ export async function registerChangelogTools(server: McpServer, config: MoodleCo
     }
   )
 
-  // ── Tool 4: Escaneo de todos los plugins con upgrade.php ──────────────────
+  // ── Tool 4: Scan all plugins with upgrade.php ──────────────────
   server.tool(
     'scan_all_upgrade_histories',
-    'Escanea todos los plugins que tienen db/upgrade.php y devuelve un resumen de cuáles tienen breaking changes',
+    'Scans all plugins that have db/upgrade.php and returns a summary of which ones have breaking changes',
     {},
     async () => {
       const results: {
@@ -400,7 +400,7 @@ export async function registerChangelogTools(server: McpServer, config: MoodleCo
           for (const entry of entries) {
             if (!entry.isDirectory()) continue
 
-            const fullname = `${typeDir}_${entry.name}`
+            const fullname = `\${typeDir}_\${entry.name}`
             const upgradePath = path.join(typePath, entry.name, 'db', 'upgrade.php')
             const upgradeContent = readIfExists(upgradePath)
 

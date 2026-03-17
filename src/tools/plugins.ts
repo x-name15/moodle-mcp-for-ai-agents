@@ -39,10 +39,10 @@ function parseVersionPhp(filePath: string): Partial<PluginInfo> {
     const get = (key: string) =>
       content.match(new RegExp(`\\$plugin->${key}\\s*=\\s*['"]?([^'";]+)['"]?`))?.[1]?.trim() ?? ''
 
-    const depsMatch = content.match(/\$plugin->dependencies\s*=\s*\[([^\]]+)\]/s)
+    const depsMatch = content.match(/\\$plugin->dependencies\\s*=\\s*\\[([^\\]]+)\\]/s)
     const dependencies: Record<string, string> = {}
     if (depsMatch) {
-      const pairs = depsMatch[1].matchAll(/['"]([^'"]+)['"]\s*=>\s*['"]?(\w+)['"]?/g)
+      const pairs = depsMatch[1].matchAll(/['"]([^'"]+)['"]\\s*=>\\s*['"]?(\\w+)['"]?/g)
       for (const [, name, ver] of pairs) {
         dependencies[name] = ver
       }
@@ -99,21 +99,21 @@ function detectHooks(dbDir: string): string[] {
   const hooksFile = path.join(dbDir, 'hooks.php')
   if (fs.existsSync(hooksFile)) {
     const content = fs.readFileSync(hooksFile, 'utf-8')
-    const matches = content.matchAll(/\\([a-zA-Z0-9_\\]+hook[a-zA-Z0-9_]*)/gi)
+    const matches = content.matchAll(/\\\\([a-zA-Z0-9_\\\\]+hook[a-zA-Z0-9_]*)/gi)
     for (const [, hook] of matches) hooks.push(hook)
   }
 
   const eventsFile = path.join(dbDir, 'events.php')
   if (fs.existsSync(eventsFile)) {
     const content = fs.readFileSync(eventsFile, 'utf-8')
-    const matches = content.matchAll(/'eventname'\s*=>\s*'([^']+)'/g)
+    const matches = content.matchAll(/'eventname'\\s*=>\\s*'([^']+)'/g)
     for (const [, event] of matches) hooks.push(event)
   }
 
   return [...new Set(hooks)]
 }
 
-// Nuevo — lee db/observers.php y extrae el mapa completo de observers
+// Reads db/observers.php and extracts the entire observers map
 function detectObservers(dbDir: string): ObserverInfo[] {
   const file = path.join(dbDir, 'observers.php')
   if (!fs.existsSync(file)) return []
@@ -122,9 +122,9 @@ function detectObservers(dbDir: string): ObserverInfo[] {
     const content = fs.readFileSync(file, 'utf-8')
     const observers: ObserverInfo[] = []
 
-    // Extrae bloques de arrays dentro de $observers = [...]
+    // Extracts arrays blocks inside $observers = [...]
     const eventMatches = content.matchAll(
-      /'eventname'\s*=>\s*'([^']+)'[\s\S]*?'callback'\s*=>\s*'([^']+)'(?:[\s\S]*?'includefile'\s*=>\s*'([^']+)')?/g
+      /'eventname'\\s*=>\\s*'([^']+)'[\\s\\S]*?'callback'\\s*=>\\s*'([^']+)'(?:[\\s\\S]*?'includefile'\\s*=>\\s*'([^']+)')?/g
     )
     for (const [, eventname, callback, includefile] of eventMatches) {
       observers.push({ eventname, callback, includefile })
@@ -141,11 +141,11 @@ function detectWebServices(dbDir: string): string[] {
   if (!fs.existsSync(file)) return []
 
   const content = fs.readFileSync(file, 'utf-8')
-  const matches = content.matchAll(/'classname'\s*=>\s*'([^']+)'/g)
+  const matches = content.matchAll(/'classname'\\s*=>\\s*'([^']+)'/g)
   return [...new Set([...matches].map(m => m[1]))]
 }
 
-// Nuevo — busca en archivos PHP del plugin qué hooks/eventos usa
+// Searches in the plugin's PHP files which hooks/events it uses
 function findHookUsageInCode(pluginPath: string, hookName: string): string[] {
   const files: string[] = []
 
@@ -212,7 +212,7 @@ function scanSinglePlugin(typeDir: string, typeName: string, pluginPath: string,
   return {
     name: entryName,
     type: typeName,
-    fullname: `${typeDir}_${entryName}`,
+    fullname: `\${typeDir}_\${entryName}`,
     version: versionData.version ?? 'unknown',
     requires: versionData.requires ?? 'unknown',
     maturity: versionData.maturity ?? 'unknown',
@@ -229,10 +229,10 @@ function scanSinglePlugin(typeDir: string, typeName: string, pluginPath: string,
 function scanPlugins(rootPath: string): Map<string, PluginInfo> {
   const pluginMap = new Map<string, PluginInfo>()
 
-  console.error(`[MCP] Escaneando en: ${rootPath}`)
+  console.error(`[MCP] Scanning in: \${rootPath}`)
 
   if (!fs.existsSync(rootPath)) {
-    console.error(`[MCP] ERROR: La ruta no existe: ${rootPath}`)
+    console.error(`[MCP] ERROR: Path does not exist: \${rootPath}`)
     return pluginMap
   }
 
@@ -240,7 +240,7 @@ function scanPlugins(rootPath: string): Map<string, PluginInfo> {
     const typePath = path.join(rootPath, typeDir)
     if (!fs.existsSync(typePath)) continue
 
-    console.error(`[MCP] Encontrado tipo: ${typeDir}`)
+    console.error(`[MCP] Found type: \${typeDir}`)
 
     const entries = fs.readdirSync(typePath, { withFileTypes: true })
     for (const entry of entries) {
@@ -254,29 +254,29 @@ function scanPlugins(rootPath: string): Map<string, PluginInfo> {
     }
   }
 
-  console.error(`[MCP] Total encontrados: ${pluginMap.size}`)
+  console.error(`[MCP] Total found: \${pluginMap.size}`)
   return pluginMap
 }
 
 export async function registerPluginTools(server: McpServer, config: MoodleConfig) {
-  // Cache como Map — permite invalidación por plugin individual
+  // Map cache — allows invalidating a single plugin
   let pluginCache: Map<string, PluginInfo> | null = null
 
   const getPlugins = (): Map<string, PluginInfo> => {
     if (!pluginCache) {
-      console.error('[MCP] Escaneando plugins...')
+      console.error('[MCP] Scanning plugins...')
       pluginCache = scanPlugins(config.MOODLE_ROOT_PATH)
-      console.error(`[MCP] ${pluginCache.size} plugins en cache`)
+      console.error(`[MCP] \${pluginCache.size} plugins in cache`)
     }
     return pluginCache
   }
 
   const getPluginsArray = (): PluginInfo[] => [...getPlugins().values()]
 
-  // ── TOOL 1: Lista todos los plugins ──────────────────────────────────────
+  // ── TOOL 1: List all plugins ──────────────────────────────────────
   server.tool(
     'list_plugins',
-    'Lista todos los plugins instalados con tipo, versión y dependencias',
+    'Lists all installed plugins with type, version and dependencies',
     {},
     async () => {
       const plugins = getPluginsArray()
@@ -303,11 +303,11 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
     }
   )
 
-  // ── TOOL 2: Detalle de un plugin ──────────────────────────────────────────
+  // ── TOOL 2: Plugin details ──────────────────────────────────────────
   server.tool(
     'get_plugin_detail',
-    'Detalle completo de un plugin: tablas DB, hooks, observers, web services y dependencias',
-    { pluginName: z.string().describe('Nombre del plugin, ej: mod_forum o local_messagebroker') },
+    'Complete details of a plugin: DB tables, hooks, observers, web services and dependencies',
+    { pluginName: z.string().describe('Plugin name, ex: mod_forum or local_messagebroker') },
     async ({ pluginName }) => {
       const plugins = getPlugins()
       const plugin = plugins.get(pluginName)
@@ -317,7 +317,7 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
         return {
           content: [{
             type: 'text',
-            text: `Plugin "${pluginName}" no encontrado. Usa list_plugins para ver los disponibles.`,
+            text: `Plugin "\${pluginName}" not found. Use list_plugins to see available ones.`,
           }],
         }
       }
@@ -328,18 +328,18 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
     }
   )
 
-  // ── TOOL 3: Árbol de dependencias ─────────────────────────────────────────
+  // ── TOOL 3: Dependency tree ─────────────────────────────────────────
   server.tool(
     'get_plugin_dependencies',
-    'Árbol de dependencias: qué plugins requiere y cuáles dependen de él',
-    { pluginName: z.string().describe('Nombre completo del plugin, ej: mod_forum') },
+    'Dependency tree: which plugins it requires and which depend on it',
+    { pluginName: z.string().describe('Full plugin name, ex: mod_forum') },
     async ({ pluginName }) => {
       const plugins = getPlugins()
       const plugin = plugins.get(pluginName)
         ?? [...plugins.values()].find(p => p.name === pluginName)
 
       if (!plugin) {
-        return { content: [{ type: 'text', text: `Plugin "${pluginName}" no encontrado` }] }
+        return { content: [{ type: 'text', text: `Plugin "\${pluginName}" not found` }] }
       }
 
       const dependents = [...plugins.values()].filter(p =>
@@ -369,11 +369,11 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
     }
   )
 
-  // ── TOOL 4: Buscar por tabla ──────────────────────────────────────────────
+  // ── TOOL 4: Search by table ──────────────────────────────────────────────
   server.tool(
     'find_plugins_by_table',
-    'Qué plugins usan una tabla específica de la base de datos',
-    { tableName: z.string().describe('Nombre de la tabla, ej: assign_submission') },
+    'Which plugins use a specific database table',
+    { tableName: z.string().describe('Table name, ex: assign_submission') },
     async ({ tableName }) => {
       const matches = getPluginsArray().filter(p =>
         p.tables.some(t => t.name.includes(tableName))
@@ -396,11 +396,11 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
     }
   )
 
-  // ── TOOL 5: Buscar por hook ───────────────────────────────────────────────
+  // ── TOOL 5: Search by hook ───────────────────────────────────────────────
   server.tool(
     'find_plugins_by_hook',
-    'Qué plugins implementan o escuchan un hook o evento específico',
-    { hookName: z.string().describe('Nombre del hook o evento, ej: user_loggedin o after_config') },
+    'Which plugins implement or listen to a specific hook or event',
+    { hookName: z.string().describe('Name of the hook or event, ex: user_loggedin or after_config') },
     async ({ hookName }) => {
       const plugins = getPluginsArray()
 
@@ -426,13 +426,13 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
     }
   )
 
-  // ── TOOL 6: Uso de hook en código PHP ─────────────────────────────────────
+  // ── TOOL 6: Hook usage in PHP code ─────────────────────────────────────
   server.tool(
     'get_hook_usage',
-    'En qué archivos PHP de un plugin aparece un hook o clase específica',
+    'In which PHP files of a plugin a specific hook or class appears',
     {
-      pluginName: z.string().describe('Nombre del plugin, ej: local_messagebroker'),
-      hookName: z.string().describe('Hook, clase o string a buscar en el código PHP'),
+      pluginName: z.string().describe('Plugin name, ex: local_messagebroker'),
+      hookName: z.string().describe('Hook, class or string to search in the PHP code'),
     },
     async ({ pluginName, hookName }) => {
       const plugins = getPlugins()
@@ -440,10 +440,10 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
         ?? [...plugins.values()].find(p => p.name === pluginName)
 
       if (!plugin) {
-        return { content: [{ type: 'text', text: `Plugin "${pluginName}" no encontrado` }] }
+        return { content: [{ type: 'text', text: `Plugin "\${pluginName}" not found` }] }
       }
 
-      console.error(`[MCP] Buscando "${hookName}" en ${plugin.path}...`)
+      console.error(`[MCP] Searching for "\${hookName}" in \${plugin.path}...`)
       const files = findHookUsageInCode(plugin.path, hookName)
 
       return {
@@ -452,7 +452,7 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
           text: JSON.stringify({
             plugin: plugin.fullname,
             searchedFor: hookName,
-            foundInFiles: files.map(f => f.replace(plugin.path, '').replace(/\\/g, '/')),
+            foundInFiles: files.map(f => f.replace(plugin.path, '').replace(/\\\\/g, '/')),
             totalFiles: files.length,
           }, null, 2),
         }],
@@ -460,31 +460,31 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
     }
   )
 
-  // ── TOOL 7: Puntos de integración entre dos plugins ───────────────────────
+  // ── TOOL 7: Integration points between two plugins ───────────────────────
   server.tool(
     'find_integration_points',
-    'Analiza dos plugins y encuentra cómo pueden integrarse: hooks en común, tablas compartidas, dependencias y observers',
+    'Analyzes two plugins and finds how they can integrate: common hooks, shared tables, dependencies and observers',
     {
-      pluginA: z.string().describe('Primer plugin, ej: local_messagebroker'),
-      pluginB: z.string().describe('Segundo plugin, ej: mod_assign'),
+      pluginA: z.string().describe('First plugin, ex: local_messagebroker'),
+      pluginB: z.string().describe('Second plugin, ex: mod_assign'),
     },
     async ({ pluginA, pluginB }) => {
       const plugins = getPlugins()
       const pA = plugins.get(pluginA) ?? [...plugins.values()].find(p => p.name === pluginA)
       const pB = plugins.get(pluginB) ?? [...plugins.values()].find(p => p.name === pluginB)
 
-      if (!pA) return { content: [{ type: 'text', text: `Plugin "${pluginA}" no encontrado` }] }
-      if (!pB) return { content: [{ type: 'text', text: `Plugin "${pluginB}" no encontrado` }] }
+      if (!pA) return { content: [{ type: 'text', text: `Plugin "\${pluginA}" not found` }] }
+      if (!pB) return { content: [{ type: 'text', text: `Plugin "\${pluginB}" not found` }] }
 
-      // Hooks en común
+      // Shared hooks
       const sharedHooks = pA.hooks.filter(h => pB.hooks.includes(h))
 
-      // Tablas compartidas (mismo nombre)
+      // Shared tables (same name)
       const tablesA = new Set(pA.tables.map(t => t.name))
       const tablesB = new Set(pB.tables.map(t => t.name))
       const sharedTables = [...tablesA].filter(t => tablesB.has(t))
 
-      // A observa eventos de B o viceversa
+      // A observes events from B or vice versa
       const aObservesB = pA.observers.filter(o =>
         o.callback.includes(pB.name) || o.eventname.includes(pB.name)
       )
@@ -492,11 +492,11 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
         o.callback.includes(pA.name) || o.eventname.includes(pA.name)
       )
 
-      // Dependencias directas
+      // Direct dependencies
       const aRequiresB = Object.keys(pA.dependencies).includes(pB.fullname)
       const bRequiresA = Object.keys(pB.dependencies).includes(pA.fullname)
 
-      // Web services que podría usar uno del otro
+      // Web services one could use from another
       const wsA = pA.webservices
       const wsB = pB.webservices
 
@@ -522,22 +522,22 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
             },
             integrationSuggestions: [
               sharedHooks.length > 0
-                ? `Ambos plugins usan los hooks: ${sharedHooks.join(', ')} — puedes coordinar comportamiento aquí`
+                ? `Both plugins use the hooks: \${sharedHooks.join(', ')} — you can coordinate behavior here`
                 : null,
               aObservesB.length > 0
-                ? `${pA.fullname} ya observa eventos de ${pB.fullname}`
+                ? `\${pA.fullname} already observes events from \${pB.fullname}`
                 : null,
               bObservesA.length > 0
-                ? `${pB.fullname} ya observa eventos de ${pA.fullname}`
+                ? `\${pB.fullname} already observes events from \${pA.fullname}`
                 : null,
               wsA.length > 0
-                ? `${pA.fullname} expone ${wsA.length} web service(s) que ${pB.fullname} podría consumir`
+                ? `\${pA.fullname} exposes \${wsA.length} web service(s) that \${pB.fullname} could consume`
                 : null,
               wsB.length > 0
-                ? `${pB.fullname} expone ${wsB.length} web service(s) que ${pA.fullname} podría consumir`
+                ? `\${pB.fullname} exposes \${wsB.length} web service(s) that \${pA.fullname} could consume`
                 : null,
               !aRequiresB && !bRequiresA
-                ? `No hay dependencia declarada — si necesitas que ${pA.name} use ${pB.name}, añade en version.php: $plugin->dependencies = ['${pB.fullname}' => ANY_VERSION]`
+                ? `No declared dependency — if you need \${pA.name} to use \${pB.name}, add in version.php: \\$plugin->dependencies = ['\${pB.fullname}' => ANY_VERSION]`
                 : null,
             ].filter(Boolean),
           }, null, 2),
@@ -546,18 +546,18 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
     }
   )
 
-  // ── TOOL 8: API pública de un plugin ──────────────────────────────────────
+  // ── TOOL 8: Plugin's public API ──────────────────────────────────────
   server.tool(
     'get_plugin_api',
-    'Lista las funciones públicas disponibles de un plugin: external lib, clases en classes/external/, y web services declarados',
-    { pluginName: z.string().describe('Nombre del plugin, ej: local_messagebroker') },
+    'Lists the available public functions of a plugin: external lib, classes in classes/external/, and declared web services',
+    { pluginName: z.string().describe('Plugin name, ex: local_messagebroker') },
     async ({ pluginName }) => {
       const plugins = getPlugins()
       const plugin = plugins.get(pluginName)
         ?? [...plugins.values()].find(p => p.name === pluginName)
 
       if (!plugin) {
-        return { content: [{ type: 'text', text: `Plugin "${pluginName}" no encontrado` }] }
+        return { content: [{ type: 'text', text: `Plugin "\${pluginName}" not found` }] }
       }
 
       const api: {
@@ -572,11 +572,11 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
         servicesPhp: null,
       }
 
-      // externallib.php — funciones públicas estáticas
+      // externallib.php — static public functions
       const extLib = path.join(plugin.path, 'externallib.php')
       if (fs.existsSync(extLib)) {
         const content = fs.readFileSync(extLib, 'utf-8')
-        const matches = content.matchAll(/public\s+static\s+function\s+(\w+)/g)
+        const matches = content.matchAll(/public\\s+static\\s+function\\s+(\\w+)/g)
         api.externalLib = [...matches].map(m => m[1])
       }
 
@@ -586,15 +586,15 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
         const files = fs.readdirSync(externalDir).filter(f => f.endsWith('.php'))
         for (const file of files) {
           const content = fs.readFileSync(path.join(externalDir, file), 'utf-8')
-          const matches = content.matchAll(/public\s+static\s+function\s+(\w+)/g)
+          const matches = content.matchAll(/public\\s+static\\s+function\\s+(\\w+)/g)
           const fns = [...matches].map(m => m[1])
           if (fns.length > 0) {
-            api.externalClasses.push(`${file}: ${fns.join(', ')}`)
+            api.externalClasses.push(`\${file}: \${fns.join(', ')}`)
           }
         }
       }
 
-      // Contenido de db/services.php para contexto
+      // db/services.php content for context
       const servicesFile = path.join(plugin.path, 'db', 'services.php')
       if (fs.existsSync(servicesFile)) {
         api.servicesPhp = fs.readFileSync(servicesFile, 'utf-8')
@@ -613,21 +613,21 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
     }
   )
 
-  // ── TOOL 9: Invalidar cache de un plugin individual ───────────────────────
+  // ── TOOL 9: Invalidate a single plugin's cache ───────────────────────
   server.tool(
     'invalidate_plugin_cache',
-    'Re-escanea un plugin específico sin tocar el resto del cache',
-    { pluginName: z.string().describe('Nombre completo del plugin, ej: local_messagebroker') },
+    'Re-scans a specific plugin without touching the rest of the cache',
+    { pluginName: z.string().describe('Full plugin name, ex: local_messagebroker') },
     async ({ pluginName }) => {
       const plugins = getPlugins()
       const plugin = plugins.get(pluginName)
         ?? [...plugins.values()].find(p => p.name === pluginName)
 
       if (!plugin) {
-        return { content: [{ type: 'text', text: `Plugin "${pluginName}" no encontrado en cache` }] }
+        return { content: [{ type: 'text', text: `Plugin "\${pluginName}" not found in cache` }] }
       }
 
-      // Determinar typeDir desde el fullname
+      // Determine typeDir from the fullname
       const typeDir = plugin.fullname.split('_')[0] === 'mod' ? 'mod'
         : plugin.fullname.substring(0, plugin.fullname.lastIndexOf('_' + plugin.name))
 
@@ -637,16 +637,16 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
       return {
         content: [{
           type: 'text',
-          text: `Plugin ${updated.fullname} actualizado en cache. Tablas: ${updated.tables.length}, Hooks: ${updated.hooks.length}, Observers: ${updated.observers.length}`,
+          text: `Plugin \${updated.fullname} updated in cache. Tables: \${updated.tables.length}, Hooks: \${updated.hooks.length}, Observers: \${updated.observers.length}`,
         }],
       }
     }
   )
 
-  // ── TOOL 10: Refresh completo ─────────────────────────────────────────────
+  // ── TOOL 10: Complete refresh ─────────────────────────────────────────────
   server.tool(
     'refresh_plugin_cache',
-    'Re-escanea todos los plugins desde el filesystem',
+    'Re-scans all plugins from the filesystem',
     {},
     async () => {
       pluginCache = null
@@ -654,7 +654,7 @@ export async function registerPluginTools(server: McpServer, config: MoodleConfi
       return {
         content: [{
           type: 'text',
-          text: `Cache actualizado. ${plugins.size} plugins encontrados en ${config.MOODLE_NAME}.`,
+          text: `Cache updated. \${plugins.size} plugins found in \${config.MOODLE_NAME}.`,
         }],
       }
     }

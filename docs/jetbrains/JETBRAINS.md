@@ -1,27 +1,27 @@
-# Moodle MCP - Guía para JetBrains (PhpStorm, IntelliJ, WebStorm)
+# Moodle MCP - Guide for JetBrains (PhpStorm, IntelliJ, WebStorm)
 
-Esta guía explica cómo integrar el servidor MCP de Moodle en los IDEs de JetBrains para potenciar tu desarrollo con Moodle.
+This guide explains how to integrate the Moodle MCP server into JetBrains IDEs to empower your Moodle development.
 
-## requisitos
+## Requirements
 
-*   **JetBrains IDE** (Versión 2024.3 o superior).
-*   **AI Assistant Plugin** instalado y activado (o plugins de terceros como Continue/CodeGPT).
-*   **Node.js** instalado en tu sistema.
+*   **JetBrains IDE** (Version 2024.3 or higher).
+*   **AI Assistant Plugin** installed and activated (or third-party plugins like Continue/CodeGPT).
+*   **Node.js** installed on your system.
 
-## 🛠 Configuración en JetBrains AI Assistant
+## 🛠 Configuration in JetBrains AI Assistant
 
-1.  Abre tu IDE (ej. PhpStorm).
-2.  Ve a `Settings` (Ctrl+Alt+S / Cmd+,).
-3.  Navega a **Tools | AI Assistant | Model Context Protocol (MCP)**.
-4.  Haz clic en el botón **+ (Add)**.
-5.  Configura los siguientes campos:
-    *   **Name**: `Moodle MCP` (o el nombre de tu instancia, ej. `Moodle 4.1`)
+1.  Open your IDE (e.g. PhpStorm).
+2.  Go to `Settings` (Ctrl+Alt+S / Cmd+,).
+3.  Navigate to **Tools | AI Assistant | Model Context Protocol (MCP)**.
+4.  Click on the **+ (Add)** button.
+5.  Configure the following fields:
+    *   **Name**: `Moodle MCP` (or your instance name, e.g. `Moodle 4.1`)
     *   **Transport**: `STDIO`
-    *   **Command**: `node` (Asegúrate de que `node` esté en tu PATH)
-    *   **Arguments**: El path absoluto al archivo `dist/server.js` de este proyecto, seguido de las variables de entorno necesarias.
+    *   **Command**: `node` (Ensure `node` is in your PATH)
+    *   **Arguments**: The absolute path to this project's `dist/server.js` file, followed by the necessary environment variables.
 
-### Comando Recomendado
-Para evitar errores con rutas relativas, usa el path absoluto. Puedes obtenerlo ejecutando el script de utilidad:
+### Recommended Command
+To avoid errors with relative paths, use the absolute path. You can get it by running the utility script:
 
 **Windows (PowerShell):**
 ```powershell
@@ -33,9 +33,9 @@ Para evitar errores con rutas relativas, usa el path absoluto. Puedes obtenerlo 
 bash scripts/jetbrains/setup-jetbrains.sh
 ```
 
-## 🧩 Plugins de Terceros (Continue / CodeGPT)
+## 🧩 Third-Party Plugins (Continue / CodeGPT)
 
-Si no usas el AI Assistant oficial, puedes configurar el servidor en el archivo `config.json` de tu plugin:
+If you don't use the official AI Assistant, you can configure the server in your plugin's `config.json` file:
 
 ```json
 {
@@ -51,13 +51,13 @@ Si no usas el AI Assistant oficial, puedes configurar el servidor en el archivo 
 }
 ```
 
-## 💡 Capacidades en PhpStorm
+## 💡 Capabilities in PhpStorm
 
-Una vez configurado, puedes preguntar al chat de la IDE:
+Once configured, you can ask the IDE chat:
 
-*   "¿Cuáles son las tablas de base de datos del plugin local_messagebroker?"
-*   "Busca errores en los logs de PHP de los últimos 30 minutos."
-*   "¿Qué hooks disparados por mod_assign podría usar mi nuevo plugin?"
+*   "What are the database tables of the local_messagebroker plugin?"
+*   "Search for errors in the PHP logs over the last 30 minutes."
+*   "What hooks fired by mod_assign could my new plugin use?"
 
 --- 
-*Desarrollado para optimizar el flujo de trabajo de Moodle en el ecosistema JetBrains.*
+*Developed to optimize the Moodle workflow in the JetBrains ecosystem.*

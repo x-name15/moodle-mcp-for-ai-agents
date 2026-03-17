@@ -3,18 +3,18 @@
 CURRENT_PATH=$(pwd)
 SERVER_PATH="$CURRENT_PATH/dist/server.js"
 
-# Colores
+# Colors
 CYAN='\033[0;36m'
 YELLOW='\033[1;33m'
 GRAY='\033[0;90m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-echo -e "${CYAN}--- Moodle MCP - Configuración para JetBrains ---${NC}"
+echo -e "${CYAN}--- Moodle MCP - Configuration for JetBrains ---${NC}"
 echo ""
-echo -e "${YELLOW}Copia y pega los siguientes valores en Settings | Tools | AI Assistant | MCP:${NC}"
+echo -e "${YELLOW}Copy and paste the following values in Settings | Tools | AI Assistant | MCP:${NC}"
 echo ""
 echo "Command:   node"
 echo "Arguments: \"$SERVER_PATH\""
 echo ""
-echo -e "${GRAY}Nota: Asegúrate de tener configurada la variable de entorno MOODLE_INSTANCE en tu sistema o mediante un archivo .env${NC}"
+echo -e "${GRAY}Note: Make sure to have the MOODLE_INSTANCE environment variable configured in your system or via an .env file${NC}"
 echo "---------------------------------------------"

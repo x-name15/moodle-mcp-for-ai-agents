@@ -1,33 +1,33 @@
-# Moodle MCP - Guía para Claude Code
+# Moodle MCP - Guide for Claude Code
 
-Este proyecto es un servidor MCP especializado en Moodle. Como instancia de **Claude Code**, tienes herramientas nativas para interactuar con el ecosistema de Moodle (DB, Plugins, Config, Logs, Mantenimiento).
+This project is an MCP server specialized in Moodle. As an instance of **Claude Code**, you have native tools to interact with the Moodle ecosystem (DB, Plugins, Config, Logs, Maintenance).
 
-## 🚀 Cómo empezar
+## 🚀 Getting Started
 
-1. **Instalación**: Ejecuta el script de setup para registrar el servidor globalmente en Claude:
+1. **Installation**: Run the setup script to register the server globally in Claude:
    - Windows: `.\scripts\claude\setup-claude.ps1`
    - Linux/Mac: `bash scripts/claude/setup-claude.sh`
-2. **Verificación**: Dentro de la sesión de Claude Code, puedes usar:
-   - `/config` — para ver y activar los servidores MCP.
-   - `/mcp` — para gestionar conexiones activas.
-3. **Contexto Inicial**: Usa el prompt `moodle_capabilities` para listar tus tools disponibles.
+2. **Verification**: Within the Claude Code session, you can use:
+   - `/config` — to view and activate MCP servers.
+   - `/mcp` — to manage active connections.
+3. **Initial Context**: Use the prompt `moodle_capabilities` to list your available tools.
 
-## 🛠 Herramientas Clave
+## 🛠 Key Tools
 
-- **Mantenimiento**: `purge_moodle_caches` y `run_moodle_cron`. Úsalas después de modificar archivos del core o plugins.
-- **Análisis de Código**: `get_plugin_detail` y `get_plugin_api` para entender la arquitectura de un plugin.
-- **Depuración**: `get_moodle_errors` y `get_php_error_log` para investigar fallos en tiempo real.
+- **Maintenance**: `purge_moodle_caches` and `run_moodle_cron`. Use them after modifying core or plugin files.
+- **Code Analysis**: `get_plugin_detail` and `get_plugin_api` to understand a plugin's architecture.
+- **Debugging**: `get_moodle_errors` and `get_php_error_log` to investigate real-time failures.
 
-## 💡 Consejos para Claude Code
+## 💡 Tips for Claude Code
 
-- **Surgical Updates**: Cuando modifiques un plugin, verifica siempre `get_plugin_dependencies`.
-- **Estilo de Código**: Respeta el Moodle Coding Style. Consulta `list_plugins` de un tipo similar para ver ejemplos de convenciones.
-- **Persistencia**: Claude Code lee la configuración de `~/.claude.json` o de un archivo `.mcp.json` local en el proyecto.
+- **Surgical Updates**: When modifying a plugin, always verify `get_plugin_dependencies`.
+- **Coding Style**: Respect the Moodle Coding Style. Check `list_plugins` of a similar type to see examples of conventions.
+- **Persistence**: Claude Code reads the configuration from `~/.claude.json` or a local `.mcp.json` file in the project.
 
-## 📂 Estructura de Configuración
+## 📂 Configuration Structure
 
-- `.env.<instancia>`: Configuración de conexión (DB, Paths, RabbitMQ).
-- `dist/server.js`: El punto de entrada del servidor MCP que Claude ejecuta.
+- `.env.<instance>`: Connection configuration (DB, Paths, RabbitMQ).
+- `dist/server.js`: The MCP server entry point executed by Claude.
 
 ---
-*Moodle MCP - Contexto experto nativo para Claude Code.*
+*Moodle MCP - Native expert context for Claude Code.*

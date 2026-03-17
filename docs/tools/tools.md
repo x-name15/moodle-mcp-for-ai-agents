@@ -1,11 +1,11 @@
-# Catálogo de tools MCP
+# MCP Tools Catalog
 
-Inventario actual de tools registradas en el servidor MCP (`src/tools`).
+Current inventory of registered tools in the MCP server (`src/tools`).
 
-## Resumen
+## Summary
 
-- Total de tools: **34**
-- Módulos fuente:
+- Total tools: **34**
+- Source modules:
   - `src/tools/plugins.ts`
   - `src/tools/db.ts`
   - `src/tools/config.ts`
@@ -17,106 +17,106 @@ Inventario actual de tools registradas en el servidor MCP (`src/tools`).
   - `src/tools/changelog.ts`
   - `src/tools/maintenance.ts`
 
-## Plugins y código (`src/tools/plugins.ts`)
+## Plugins and code (`src/tools/plugins.ts`)
 
-| Tool | Descripción |
+| Tool | Description |
 |---|---|
-| `list_plugins` | Lista todos los plugins instalados con tipo, versión y dependencias |
-| `get_plugin_detail` | Detalle completo de un plugin: tablas DB, hooks, observers, web services y dependencias |
-| `get_plugin_dependencies` | Árbol de dependencias: qué plugins requiere y cuáles dependen de él |
-| `find_plugins_by_table` | Qué plugins usan una tabla específica de la base de datos |
-| `find_plugins_by_hook` | Qué plugins implementan o escuchan un hook o evento específico |
-| `get_hook_usage` | En qué archivos PHP de un plugin aparece un hook o clase específica |
-| `find_integration_points` | Analiza dos plugins y encuentra cómo pueden integrarse: hooks en común, tablas compartidas, dependencias y observers |
-| `get_plugin_api` | Lista las funciones públicas disponibles de un plugin: external lib, clases en classes/external/, y web services declarados |
-| `invalidate_plugin_cache` | Re-escanea un plugin específico sin tocar el resto del cache |
-| `refresh_plugin_cache` | Re-escanea todos los plugins desde el filesystem |
+| `list_plugins` | Lists all installed plugins with type, version and dependencies |
+| `get_plugin_detail` | Complete details of a plugin: DB tables, hooks, observers, web services and dependencies |
+| `get_plugin_dependencies` | Dependency tree: which plugins it requires and which depend on it |
+| `find_plugins_by_table` | Which plugins use a specific database table |
+| `find_plugins_by_hook` | Which plugins implement or listen to a specific hook or event |
+| `get_hook_usage` | In which PHP files of a plugin a specific hook or class appears |
+| `find_integration_points` | Analyzes two plugins and finds how they can integrate: common hooks, shared tables, dependencies and observers |
+| `get_plugin_api` | Lists available public functions of a plugin: external lib, classes in classes/external/, and declared web services |
+| `invalidate_plugin_cache` | Re-scans a specific plugin without touching the rest of the cache |
+| `refresh_plugin_cache` | Re-scans all plugins from the filesystem |
 
-## Base de datos (`src/tools/db.ts`)
+## Database (`src/tools/db.ts`)
 
-| Tool | Descripción |
+| Tool | Description |
 |---|---|
-| `list_db_tables` | Lista todas las tablas de la base de datos de Moodle con número de filas y tamaño en KB |
-| `describe_table` | Muestra columnas, tipos e índices de una tabla. Usa el nombre con o sin prefijo mdl_ |
-| `count_plugin_records` | Cuenta cuántos registros hay en cada tabla de un plugin. Útil para ver si tiene datos reales. |
-| `find_column` | Busca en qué tablas de Moodle existe una columna con ese nombre |
-| `sample_table` | Muestra los primeros registros de una tabla para entender qué datos tiene. Máximo 10 filas. |
-| `db_overview` | Resumen general de la base de datos: tamaño total, tablas más grandes y tablas con más registros |
+| `list_db_tables` | Lists all Moodle database tables with row count and size in KB |
+| `describe_table` | Shows columns, types and indexes of a table. Can use the name with or without the mdl_ prefix |
+| `count_plugin_records` | Counts how many records there are in each table of a plugin. Useful to see if it has real data. |
+| `find_column` | Finds which Moodle tables have a column with that name |
+| `sample_table` | Shows the first records of a table to understand its data. Maximum 10 rows. |
+| `db_overview` | General database overview: total size, largest tables and tables with the most records |
 
-## Configuración (`src/tools/config.ts`)
+## Configuration (`src/tools/config.ts`)
 
-| Tool | Descripción |
+| Tool | Description |
 |---|---|
-| `get_moodle_config` | Lee el config.php de Moodle y devuelve la configuración del sitio: URL, dataroot, caché, DB, etc. |
+| `get_moodle_config` | Reads Moodle config.php and returns site configuration: URL, dataroot, cache, DB, etc. |
 
 ## Web services (`src/tools/webservices.ts`)
 
-| Tool | Descripción |
+| Tool | Description |
 |---|---|
-| `list_webservices` | Lista los web services habilitados en Moodle, sus funciones y los tokens de acceso activos |
-| `get_service_functions` | Lista las funciones PHP registradas en un web service específico |
+| `list_webservices` | Lists enabled web services in Moodle, their functions and active access tokens |
+| `get_service_functions` | Lists PHP functions registered in a specific web service |
 
-## Usuarios (`src/tools/users.ts`)
+## Users (`src/tools/users.ts`)
 
-| Tool | Descripción |
+| Tool | Description |
 |---|---|
-| `get_users_overview` | Resumen de usuarios del sistema: total, activos, por rol, admins y últimos logins |
-| `find_user` | Busca un usuario por username, email o nombre y muestra sus roles y cursos |
+| `get_users_overview` | System user overview: total, active, by role, admins and latest logins |
+| `find_user` | Searches for a user by username, email or name and shows their roles and courses |
 
-## Logs y errores (`src/tools/moodlelog.ts`)
+## Logs and errors (`src/tools/moodlelog.ts`)
 
-| Tool | Descripción |
+| Tool | Description |
 |---|---|
-| `get_moodle_errors` | Muestra los errores y eventos críticos recientes del log de Moodle |
-| `get_recent_activity` | Muestra la actividad reciente en Moodle: logins, accesos, eventos importantes |
-| `get_php_error_log` | Lee las últimas líneas del log de errores de PHP del servidor Moodle |
+| `get_moodle_errors` | Shows recent errors and critical events from the Moodle log |
+| `get_recent_activity` | Shows recent activity in Moodle: logins, accesses, key events |
+| `get_php_error_log` | Reads the latest lines from the Moodle server PHP error log |
 
-## Infraestructura (`src/tools/infra.ts`)
+## Infrastructure (`src/tools/infra.ts`)
 
-| Tool | Descripción |
+| Tool | Description |
 |---|---|
-| `get_infra_context` | Infraestructura completa de esta instancia: RabbitMQ, servicios externos, URLs y puertos |
-| `get_rabbitmq_status` | Estado actual de RabbitMQ: queues activas, mensajes pendientes y consumers conectados |
+| `get_infra_context` | Complete infrastructure of this instance: RabbitMQ, external services, URLs and ports |
+| `get_rabbitmq_status` | Current RabbitMQ status: active queues, pending messages and connected consumers |
 
-## Integración y scaffold (`src/tools/integration.ts`)
+## Integration and scaffold (`src/tools/integration.ts`)
 
-| Tool | Descripción |
+| Tool | Description |
 |---|---|
-| `suggest_hook_integration` | Sugiere cómo integrar dos plugins usando hooks y eventos de Moodle. Analiza qué eventos dispara A que B podría escuchar, y viceversa. |
-| `generate_plugin_scaffold` | Genera la estructura completa de archivos para un plugin nuevo de Moodle listo para desarrollar. |
+| `suggest_hook_integration` | Suggests how to integrate two plugins using Moodle hooks and events. Analyzes what events A fires that B could listen to, and vice versa. |
+| `generate_plugin_scaffold` | Generates the complete file structure for a new Moodle plugin ready for development. |
 
-## Historial y cambios (`src/tools/changelog.ts`)
+## History and changes (`src/tools/changelog.ts`)
 
-| Tool | Descripción |
+| Tool | Description |
 |---|---|
-| `get_plugin_history` | Historial completo de un plugin: upgrade.php, CHANGELOG.md y CHANGES.md combinados |
-| `get_db_upgrade_steps` | Qué cambios exactos de BD hizo un plugin en upgrade.php, filtrable por versión de origen |
-| `get_breaking_changes` | Detecta breaking changes en el historial de un plugin y qué plugins dependientes están en riesgo |
-| `scan_all_upgrade_histories` | Escanea todos los plugins con upgrade.php y devuelve un ranking de riesgo por breaking changes |
+| `get_plugin_history` | Complete history of a plugin: combined upgrade.php, CHANGELOG.md and CHANGES.md |
+| `get_db_upgrade_steps` | Exact DB changes a plugin made in upgrade.php, filterable by source version |
+| `get_breaking_changes` | Detects breaking changes in a plugin's history and which dependent plugins are at risk |
+| `scan_all_upgrade_histories` | Scans all plugins with upgrade.php and returns a risk ranking for breaking changes |
 
-## Mantenimiento (`src/tools/maintenance.ts`)
+## Maintenance (`src/tools/maintenance.ts`)
 
-| Tool | Descripción |
+| Tool | Description |
 |---|---|
-| `purge_moodle_caches` | Limpia todos los caches de Moodle (equivalente a `admin/cli/purge_caches.php`) |
-| `run_moodle_cron` | Ejecuta el cron de Moodle manualmente (equivalente a `admin/cli/cron.php`) |
+| `purge_moodle_caches` | Clears all Moodle caches (equivalent to `admin/cli/purge_caches.php`) |
+| `run_moodle_cron` | Runs Moodle cron manually (equivalent to `admin/cli/cron.php`) |
 
 ---
 
-## Prompts de slash (`src/prompts/templates.ts`)
+## Slash prompts (`src/prompts/templates.ts`)
 
-| Prompt | Parámetros | Descripción |
+| Prompt | Parameters | Description |
 |---|---|---|
-| `moodle_capabilities` | — | Lista completa de tools disponibles en esta instancia |
-| `moodle_status` | — | Diagnóstico completo del estado del Moodle antes de tocar algo |
-| `understand_plugin` | `pluginName` | Analiza en profundidad un plugin desconocido |
-| `debug_error` | `errorDescription` | Investiga un error o problema en producción |
-| `new_plugin` | `pluginType`, `pluginPurpose` | Contexto completo para desarrollar un plugin nuevo desde cero |
-| `integrate_plugins` | `pluginA`, `pluginB`, `integrationGoal` | Planifica la integración entre dos plugins existentes |
-| `webservice_context` | `pluginName`, `wsAction` | Crea o modifica un Web Service con contexto real del sitio |
+| `moodle_capabilities` | — | Complete list of available tools in this instance |
+| `moodle_status` | — | Complete diagnosis of Moodle status before making changes |
+| `understand_plugin` | `pluginName` | Analyzes an unknown plugin in depth |
+| `debug_error` | `errorDescription` | Investigates a production error or problem |
+| `new_plugin` | `pluginType`, `pluginPurpose` | Full context to develop a new plugin from scratch |
+| `integrate_plugins` | `pluginA`, `pluginB`, `integrationGoal` | Plans integration between two existing plugins |
+| `webservice_context` | `pluginName`, `wsAction` | Creates or modifies a Web Service with real site context |
 
 ---
 
-## Nota de mantenimiento
+## Maintenance Note
 
-Si agregas o renombras tools en `src/tools/*`, actualiza este archivo para mantener la documentación sincronizada.
+If you add or rename tools in `src/tools/*`, update this file to keep the documentation in sync.

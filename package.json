@@ -1,7 +1,7 @@
 {
   "name": "moodle-mcp",
   "version": "0.2.0",
-  "description": "Contexto completo de Moodle para Gemini y Copilot — plugins, DB, logs, WS, RabbitMQ e infraestructura",
+  "description": "Full Moodle context for AI agents — plugins, DB, logs, WS, RabbitMQ and infrastructure",
   "type": "module",
   "author": "Mr Jacket / Felix Manrique",
   "license": "GNU GPL v3",

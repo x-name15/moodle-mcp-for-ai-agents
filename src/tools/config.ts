@@ -10,8 +10,8 @@ function parseMoodleConfig(rootPath: string): Record<string, string> {
   const content = fs.readFileSync(configPath, 'utf-8')
   const result: Record<string, string> = {}
 
-  // Extrae $CFG->key = 'value' o $CFG->key = value
-  const matches = content.matchAll(/\$CFG->(\w+)\s*=\s*['"]?([^'"\n;]+)['"]?\s*;/g)
+  // Extracts $CFG->key = 'value' or $CFG->key = value
+  const matches = content.matchAll(/\\$CFG->(\\w+)\\s*=\\s*['"]?([^'"\\n;]+)['"]?\\s*;/g)
   for (const [, key, value] of matches) {
     result[key] = value.trim()
   }
@@ -23,7 +23,7 @@ export async function registerConfigTools(server: McpServer, config: MoodleConfi
 
   server.tool(
     'get_moodle_config',
-    'Lee el config.php de Moodle y devuelve la configuración del sitio: URL, dataroot, caché, DB, etc.',
+    'Reads Moodle config.php and returns the site configuration: URL, dataroot, cache, DB, etc.',
     {},
     async () => {
       const cfg = parseMoodleConfig(config.MOODLE_ROOT_PATH)
@@ -32,12 +32,12 @@ export async function registerConfigTools(server: McpServer, config: MoodleConfi
         return {
           content: [{
             type: 'text',
-            text: `No se pudo leer config.php en ${config.MOODLE_ROOT_PATH}`,
+            text: `Could not read config.php at \${config.MOODLE_ROOT_PATH}`,
           }],
         }
       }
 
-      // Ocultar password de BD por seguridad
+      // Hide DB password for security
       const safe = { ...cfg }
       if (safe.dbpass) safe.dbpass = '***'
 

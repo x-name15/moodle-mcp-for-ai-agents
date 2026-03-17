@@ -13,10 +13,10 @@ export async function registerUserTools(server: McpServer, config: MoodleConfig)
     connectionLimit: 3,
   })
 
-  // Tool 1: Resumen de usuarios y roles
+  // Tool 1: Users and roles overview
   server.tool(
     'get_users_overview',
-    'Resumen de usuarios del sistema: total, activos, por rol, admins y últimos logins',
+    'System users overview: total, active, by role, admins, and latest logins',
     {},
     async () => {
       try {
@@ -70,16 +70,16 @@ export async function registerUserTools(server: McpServer, config: MoodleConfig)
           }],
         }
       } catch (err: any) {
-        return { content: [{ type: 'text', text: `Error: ${err.message}` }] }
+        return { content: [{ type: 'text', text: `Error: \${err.message}` }] }
       }
     }
   )
 
-  // Tool 2: Buscar usuario específico
+  // Tool 2: Search specific user
   server.tool(
     'find_user',
-    'Busca un usuario por username, email o nombre y muestra sus roles y cursos',
-    { query: z.string().describe('Username, email o nombre del usuario') },
+    'Searches for a user by username, email or name and shows their roles and courses',
+    { query: z.string().describe('Username, email or name of the user') },
     async ({ query }) => {
       try {
         const [users] = await pool.execute<any[]>(`
@@ -93,11 +93,11 @@ export async function registerUserTools(server: McpServer, config: MoodleConfig)
                  OR u.firstname LIKE ? OR u.lastname LIKE ?)
             AND u.id > 1
           LIMIT 5
-        `, [`%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`])
+        `, [`%\${query}%`, `%\${query}%`, `%\${query}%`, `%\${query}%`])
 
         if ((users as any[]).length === 0) {
           return {
-            content: [{ type: 'text', text: `No se encontró usuario con "${query}"` }],
+            content: [{ type: 'text', text: `No user found with "\${query}"` }],
           }
         }
 
@@ -134,7 +134,7 @@ export async function registerUserTools(server: McpServer, config: MoodleConfig)
           }],
         }
       } catch (err: any) {
-        return { content: [{ type: 'text', text: `Error: ${err.message}` }] }
+        return { content: [{ type: 'text', text: `Error: \${err.message}` }] }
       }
     }
   )

@@ -1,11 +1,11 @@
 # Moodle MCP - Setup Script
-Write-Host "Configurando..."
+Write-Host "Configuring..."
 
 $ProjectRoot = Get-Item "." | Select-Object -ExpandProperty FullName
 $ServerPath = Join-Path $ProjectRoot "dist\server.js"
 
 if (-not (Test-Path $ServerPath)) {
-    Write-Host "Error: No se encontro dist\server.js"
+    Write-Host "Error: dist\server.js not found"
     exit 1
 }
 
@@ -13,8 +13,8 @@ $Instances = Get-ChildItem -Path "." -Filter ".env.*" | Where-Object { $_.Name -
 
 foreach ($Instance in $Instances) {
     $Name = $Instance.Name.Replace(".env.", "")
-    Write-Host "Registrando $Name..."
+    Write-Host "Registering $Name..."
     & gemini mcp add $Name node "$ServerPath" --env "MOODLE_INSTANCE=$Name" --scope user
 }
 
-Write-Host "Completado."
+Write-Host "Completed."

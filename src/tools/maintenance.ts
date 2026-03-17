@@ -5,60 +5,60 @@ import path from 'path'
 import type { MoodleConfig } from '../config.js'
 
 /**
- * Ejecuta un comando PHP CLI de Moodle de forma segura
+ * Executes a Moodle PHP CLI command safely
  */
 function runMoodleCli(rootPath: string, script: string): Promise<string> {
     const fullPath = path.join(rootPath, 'admin', 'cli', script)
     return new Promise((resolve, reject) => {
-        // Usamos 'php' asumiendo que está en el PATH, o podrías añadir PHP_PATH al .env si fuera necesario
-        exec(`php ${fullPath}`, (error, stdout, stderr) => {
+        // Using 'php' assuming it is in the PATH, or you could add PHP_PATH to .env if necessary
+        exec(`php \${fullPath}`, (error, stdout, stderr) => {
             if (error) {
-                reject(`Error ejecutando ${script}: ${stderr || error.message}`)
+                reject(`Error executing \${script}: \${stderr || error.message}`)
                 return
             }
-            resolve(stdout || 'Comando ejecutado con éxito (sin salida).')
+            resolve(stdout || 'Command executed successfully (no output).')
         })
     })
 }
 
 export async function registerMaintenanceTools(server: McpServer, config: MoodleConfig) {
 
-    // ── TOOL: Purgar Caches ──────────────────────────────────────────────────
+    // ── TOOL: Purge Caches ──────────────────────────────────────────────────
     server.tool(
         'purge_moodle_caches',
-        'Limpia todos los caches de Moodle (equivalente a admin/cli/purge_caches.php)',
+        'Clears all Moodle caches (equivalent to admin/cli/purge_caches.php)',
         {},
         async () => {
             try {
-                console.error(`[MCP] Purgando caches en ${config.MOODLE_NAME}...`)
+                console.error(`[MCP] Purging caches on \${config.MOODLE_NAME}...`)
                 const output = await runMoodleCli(config.MOODLE_ROOT_PATH, 'purge_caches.php')
                 return {
-                    content: [{ type: 'text', text: `Caches purgados con éxito:\n${output}` }]
+                    content: [{ type: 'text', text: `Caches purged successfully:\\n\${output}` }]
                 }
             } catch (err) {
                 return {
-                    content: [{ type: 'text', text: `Error al purgar caches: ${err}` }],
+                    content: [{ type: 'text', text: `Error purging caches: \${err}` }],
                     isError: true
                 }
             }
         }
     )
 
-    // ── TOOL: Ejecutar Cron ──────────────────────────────────────────────────
+    // ── TOOL: Execute Cron ──────────────────────────────────────────────────
     server.tool(
         'run_moodle_cron',
-        'Ejecuta el cron de Moodle manualmente (equivalente a admin/cli/cron.php)',
+        'Executes the Moodle cron manually (equivalent to admin/cli/cron.php)',
         {},
         async () => {
             try {
-                console.error(`[MCP] Ejecutando cron en ${config.MOODLE_NAME}...`)
+                console.error(`[MCP] Executing cron on \${config.MOODLE_NAME}...`)
                 const output = await runMoodleCli(config.MOODLE_ROOT_PATH, 'cron.php')
                 return {
-                    content: [{ type: 'text', text: `Cron finalizado:\n${output}` }]
+                    content: [{ type: 'text', text: `Cron finished:\\n\${output}` }]
                 }
             } catch (err) {
                 return {
-                    content: [{ type: 'text', text: `Error al ejecutar cron: ${err}` }],
+                    content: [{ type: 'text', text: `Error executing cron: \${err}` }],
                     isError: true
                 }
             }

@@ -19,19 +19,19 @@ function createPool(config: MoodleConfig) {
 export async function registerDbTools(server: McpServer, config: MoodleConfig) {
   const pool = createPool(config)
 
-  // Verificar conexión al arrancar
+  // Verify connection on startup
   try {
     const conn = await pool.getConnection()
-    console.error(`[MCP] DB conectada: ${config.DB_HOST}:${config.DB_PORT}/${config.DB_NAME}`)
+    console.error(`[MCP] DB connected: \${config.DB_HOST}:\${config.DB_PORT}/\${config.DB_NAME}`)
     conn.release()
   } catch (err: any) {
-    console.error(`[MCP] ERROR DB: ${err.message}`)
+    console.error(`[MCP] DB ERROR: \${err.message}`)
   }
 
-  // Tool 1: Lista tablas con tamaño y filas
+  // Tool 1: List tables with size and row count
   server.tool(
     'list_db_tables',
-    'Lista todas las tablas de la base de datos de Moodle con número de filas y tamaño en KB',
+    'Lists all Moodle database tables with row counts and size in KB',
     {},
     async () => {
       try {
@@ -56,18 +56,18 @@ export async function registerDbTools(server: McpServer, config: MoodleConfig) {
           }],
         }
       } catch (err: any) {
-        return { content: [{ type: 'text', text: `Error DB: ${err.message}` }] }
+        return { content: [{ type: 'text', text: `DB Error: \${err.message}` }] }
       }
     }
   )
 
-  // Tool 2: Describe una tabla
+  // Tool 2: Describe a table
   server.tool(
     'describe_table',
-    'Muestra columnas, tipos e índices de una tabla. Usa el nombre con o sin prefijo mdl_',
-    { tableName: z.string().describe('Nombre de la tabla, ej: user o mdl_user') },
+    'Shows columns, types, and indexes of a table. Use the name with or without the mdl_ prefix',
+    { tableName: z.string().describe('Table name, ex: user or mdl_user') },
     async ({ tableName }) => {
-      const name = tableName.startsWith('mdl_') ? tableName : `mdl_${tableName}`
+      const name = tableName.startsWith('mdl_') ? tableName : `mdl_\${tableName}`
       try {
         const [columns] = await pool.execute<any[]>('DESCRIBE ??', [name])
         const [indexes] = await pool.execute<any[]>('SHOW INDEX FROM ??', [name])
@@ -79,22 +79,22 @@ export async function registerDbTools(server: McpServer, config: MoodleConfig) {
           }],
         }
       } catch (err: any) {
-        return { content: [{ type: 'text', text: `Error: ${err.message}` }] }
+        return { content: [{ type: 'text', text: `Error: \${err.message}` }] }
       }
     }
   )
 
-  // Tool 3: Contar registros de las tablas de un plugin
+  // Tool 3: Count records in a plugin's tables
   server.tool(
     'count_plugin_records',
-    'Cuenta cuántos registros hay en cada tabla de un plugin. Útil para ver si tiene datos reales.',
-    { pluginPrefix: z.string().describe('Prefijo del plugin, ej: local_messagebroker o solo messagebroker') },
+    'Counts the number of records in each table of a plugin. Useful to see if it has real data.',
+    { pluginPrefix: z.string().describe('Plugin prefix, ex: local_messagebroker or just messagebroker') },
     async ({ pluginPrefix }) => {
       try {
-        const prefix = pluginPrefix.replace('mdl_', '').replace('local_', 'local\\_')
+        const prefix = pluginPrefix.replace('mdl_', '').replace('local_', 'local\\\\_')
         const searchPrefix = pluginPrefix.includes('_')
-          ? `mdl_${pluginPrefix}%`
-          : `mdl_%${pluginPrefix}%`
+          ? `mdl_\${pluginPrefix}%`
+          : `mdl_%\${pluginPrefix}%`
 
         const [tables] = await pool.execute<any[]>(`
           SELECT TABLE_NAME
@@ -105,14 +105,14 @@ export async function registerDbTools(server: McpServer, config: MoodleConfig) {
 
         if ((tables as any[]).length === 0) {
           return {
-            content: [{ type: 'text', text: `No se encontraron tablas para "${pluginPrefix}"` }],
+            content: [{ type: 'text', text: `No tables found for "\${pluginPrefix}"` }],
           }
         }
 
         const counts = await Promise.all(
           (tables as any[]).map(async (t) => {
             const [rows] = await pool.execute<any[]>(
-              `SELECT COUNT(*) as count FROM \`${t.TABLE_NAME}\``
+              `SELECT COUNT(*) as count FROM \\\`\${t.TABLE_NAME}\\\``
             )
             return { table: t.TABLE_NAME, records: (rows[0] as any).count }
           })
@@ -125,16 +125,16 @@ export async function registerDbTools(server: McpServer, config: MoodleConfig) {
           }],
         }
       } catch (err: any) {
-        return { content: [{ type: 'text', text: `Error: ${err.message}` }] }
+        return { content: [{ type: 'text', text: `Error: \${err.message}` }] }
       }
     }
   )
 
-  // Tool 4: Buscar en qué tablas existe una columna
+  // Tool 4: Search which tables contain a specific column
   server.tool(
     'find_column',
-    'Busca en qué tablas de Moodle existe una columna con ese nombre',
-    { columnName: z.string().describe('Nombre o parte del nombre de la columna, ej: userid o courseid') },
+    'Searches which Moodle tables contain a column with a specific name',
+    { columnName: z.string().describe('Name or part of the name of the column, ex: userid or courseid') },
     async ({ columnName }) => {
       try {
         const [rows] = await pool.execute<any[]>(`
@@ -146,7 +146,7 @@ export async function registerDbTools(server: McpServer, config: MoodleConfig) {
           FROM information_schema.COLUMNS
           WHERE TABLE_SCHEMA = ? AND COLUMN_NAME LIKE ?
           ORDER BY TABLE_NAME
-        `, [config.DB_NAME, `%${columnName}%`])
+        `, [config.DB_NAME, `%\${columnName}%`])
 
         return {
           content: [{
@@ -159,24 +159,24 @@ export async function registerDbTools(server: McpServer, config: MoodleConfig) {
           }],
         }
       } catch (err: any) {
-        return { content: [{ type: 'text', text: `Error: ${err.message}` }] }
+        return { content: [{ type: 'text', text: `Error: \${err.message}` }] }
       }
     }
   )
 
-  // Tool 5: Sample de datos de una tabla
+  // Tool 5: Table data sample
   server.tool(
     'sample_table',
-    'Muestra los primeros registros de una tabla para entender qué datos tiene. Máximo 10 filas.',
+    'Shows the first records of a table to understand what data it holds. Maximum 10 rows.',
     {
-      tableName: z.string().describe('Nombre de la tabla, ej: local_messagebroker_pub_log'),
-      limit: z.number().min(1).max(10).default(5).describe('Cuántos registros mostrar, máximo 10'),
+      tableName: z.string().describe('Table name, ex: local_messagebroker_pub_log'),
+      limit: z.number().min(1).max(10).default(5).describe('How many records to show, max 10'),
     },
     async ({ tableName, limit }) => {
-      const name = tableName.startsWith('mdl_') ? tableName : `mdl_${tableName}`
+      const name = tableName.startsWith('mdl_') ? tableName : `mdl_\${tableName}`
       try {
         const [rows] = await pool.execute<any[]>(
-          `SELECT * FROM \`${name}\` LIMIT ?`, [limit]
+          `SELECT * FROM \\\`\${name}\\\` LIMIT ?`, [limit]
         )
         return {
           content: [{
@@ -185,15 +185,15 @@ export async function registerDbTools(server: McpServer, config: MoodleConfig) {
           }],
         }
       } catch (err: any) {
-        return { content: [{ type: 'text', text: `Error: ${err.message}` }] }
+        return { content: [{ type: 'text', text: `Error: \${err.message}` }] }
       }
     }
   )
 
-  // Tool 6: Estado general de la BD
+  // Tool 6: General DB overview
   server.tool(
     'db_overview',
-    'Resumen general de la base de datos: tamaño total, tablas más grandes y tablas con más registros',
+    'General database overview: total size, largest tables, and tables with the most records',
     {},
     async () => {
       try {
@@ -236,7 +236,7 @@ export async function registerDbTools(server: McpServer, config: MoodleConfig) {
           }],
         }
       } catch (err: any) {
-        return { content: [{ type: 'text', text: `Error: ${err.message}` }] }
+        return { content: [{ type: 'text', text: `Error: \${err.message}` }] }
       }
     }
   )

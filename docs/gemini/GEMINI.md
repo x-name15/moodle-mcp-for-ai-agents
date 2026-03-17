@@ -1,30 +1,30 @@
-# Moodle MCP - Guía para Gemini
+# Moodle MCP - Guide for Gemini
 
-Este proyecto es un servidor MCP especializado en Moodle. Como modelo de IA, tienes herramientas nativas para interactuar con el ecosistema de Moodle (DB, Plugins, Config, Logs).
+This project is an MCP server specialized in Moodle. As an AI model, you have native tools to interact with the Moodle ecosystem (DB, Plugins, Config, Logs).
 
-## 🚀 Cómo empezar
+## 🚀 Getting Started
 
-1. **Seleccionar Instancia**: Asegúrate de que el servidor esté corriendo con la instancia correcta (`moodle41` o `moodle45`). Esto se controla con la variable de entorno `MOODLE_INSTANCE`.
-2. **Contexto Inicial**: Siempre comienza usando el prompt `moodle_capabilities` para ver qué herramientas tienes activas en la instancia actual.
-3. **Diagnóstico**: Si vas a realizar cambios, usa el prompt `moodle_status` para verificar que no haya errores críticos en la base de datos o en los logs de PHP.
+1. **Select Instance**: Ensure the server is running with the correct instance (`moodle41` or `moodle45`). This is controlled by the `MOODLE_INSTANCE` environment variable.
+2. **Initial Context**: Always start using the prompt `moodle_capabilities` to see what tools are active in the current instance.
+3. **Diagnostics**: If you are going to make changes, use the prompt `moodle_status` to verify there are no critical errors in the database or PHP logs.
 
-## 🛠 Herramientas Clave
+## 🛠 Key Tools
 
-- **Análisis de Código**: Usa `get_plugin_detail` y `get_plugin_api` antes de sugerir cambios en un plugin.
-- **Base de Datos**: Usa `describe_table` para conocer los tipos de datos exactos y `sample_table` para ver ejemplos reales.
-- **Depuración**: Si algo falla, `get_moodle_errors` y `get_php_error_log` son tus mejores amigos.
+- **Code Analysis**: Use `get_plugin_detail` and `get_plugin_api` before suggesting changes to a plugin.
+- **Database**: Use `describe_table` to know exactly the data types and `sample_table` to see real examples.
+- **Debugging**: If something fails, `get_moodle_errors` and `get_php_error_log` are your best friends.
 
-## 💡 Consejos para Gemini
+## 💡 Tips for Gemini
 
-- **Surgical Updates**: Cuando modifiques un plugin, verifica siempre `get_plugin_dependencies` para no romper integraciones.
-- **Estilo de Código**: Moodle sigue estándares estrictos (Moodle Coding Style). Usa `list_plugins` de un tipo similar para ver ejemplos de convenciones de nombres y estructuras.
-- **Seguridad**: Nunca expongas credenciales. El servidor ya enmascara contraseñas en `get_moodle_config`, pero ten cuidado al leer tablas de usuarios.
+- **Surgical Updates**: When modifying a plugin, always verify `get_plugin_dependencies` to avoid breaking integrations.
+- **Coding Style**: Moodle follows strict standards (Moodle Coding Style). Use `list_plugins` of a similar type to see examples of naming conventions and structures.
+- **Security**: Never expose credentials. The server already masks passwords in `get_moodle_config`, but be careful when reading user tables.
 
-## 📂 Estructura de Configuración
+## 📂 Configuration Structure
 
-- `.env.<instancia>`: Configuración de conexión.
-- `data/microservices.<instancia>.json`: Definición de la infraestructura extendida.
-- `mcp.json`: Configuración para lanzarme como cliente MCP.
+- `.env.<instance>`: Connection configuration.
+- `data/microservices.<instance>.json`: Definition of extended infrastructure.
+- `mcp.json`: Configuration to launch me as an MCP client.
 
 ---
-*Generado automáticamente para compatibilidad nativa con Gemini.*
+*Automatically generated for native compatibility with Gemini.*
